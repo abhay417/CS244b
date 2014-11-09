@@ -1,11 +1,16 @@
+CACHESHELL_OBJ := shell/cacheshell.o
 
-SHELL_SRC := shell/shell.cc
-
-SHELL_OBJ := $(SHELL_SRC:.cc=.o)
-
-shell/%.o: shell/%.cc
+cacheshell/%.o: cacheshell/%.cc
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
-shell/shell: $(SHELL_OBJ) libclient/libclient.a
-	$(LD) -o $@ $(LDFLAGS) $(SHELL_OBJ) $(LIBS)
+shell/cacheshell: $(CACHESHELL_OBJ) libclient/libclient.a
+	$(LD) -o $@ $(LDFLAGS) $(CACHESHELL_OBJ) $(LIBS)
+
+MASTERSHELL_OBJ := shell/cacheshell.o
+
+mastershell/%.o: mastershell/%.cc
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+shell/mastershell: $(MASTERSHELL_OBJ) libclient/libclient.a
+	$(LD) -o $@ $(LDFLAGS) $(MASTERSHELL_OBJ) $(LIBS)
 
