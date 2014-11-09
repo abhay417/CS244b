@@ -15,7 +15,7 @@
 #include <xdrpp/socket.h>
 
 #include <include/rpcconfig.h>
-#include <include/server.hh>
+#include <include/cacheserver.hh>
 #include <include/client.h>
 
 using namespace std;
@@ -58,36 +58,6 @@ Client::isConnected()
     return client != NULL;
 }
 
-bool
-Client::create(const std::string &path, const std::string &val)
-{
-    kvpair args;
-
-    args.key = path;
-    args.val = val;
-
-    auto r = client->create(args);
-    bool ret = r->success;
-    if (!ret) {
-      if (r->code < 5) {
-        throw ClientException((ClientError)r->code);
-      }
-    }
-    return ret;
-}
-
-bool
-Client::remove(const std::string &path)
-{
-    auto r = client->remove(path);
-    bool ret = r->success;
-    if (!ret) {
-      if (r->code < 5)
-        throw ClientException((ClientError)r->code);
-    }
-    return ret;
-}
-
 std::string
 Client::get(const std::string &path)
 {
@@ -100,39 +70,6 @@ Client::get(const std::string &path)
     return r->val;
 }
 
-void
-Client::set(const std::string &path, const std::string &val)
-{
-    kvpair args;
-
-    args.key = path;
-    args.val = val;
-
-    auto r = client->set(args);
-    bool ret = r->success;
-    if (!ret) {
-      if (r->code < 5) {
-        throw ClientException((ClientError)r->code);
-      }
-    }
-}
-
-//c++ string split fn from stack overflow
-std::set<std::string> &split(const std::string &s, char delim, std::set<std::string> &elems) {
-  std::stringstream ss(s);
-  std::string item;
-  while (std::getline(ss, item, delim)) {
-    elems.insert(item);
-  }
-  return elems;
-}
-
-std::set<std::string> split(const std::string &s, char delim) {
-  std::set<std::string> elems;
-  split(s,delim, elems);
-  return elems;
-}
-
 std::set<string>
 Client::list(const string &path)
 {
@@ -143,7 +80,7 @@ Client::list(const string &path)
         throw ClientException((ClientError)r->code);
     }
     std::string val = r->val;
-    std::set<std::string> retSet = split(val, ',');
+    std::set<std::string> retSet;
     return retSet;
 }
 

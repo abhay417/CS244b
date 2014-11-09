@@ -11,7 +11,7 @@
 
 #include <xdrpp/srpc.h>
 
-#include <include/server.hh>
+#include <include/cacheserver.hh>
 #include <include/client.h>
 
 using namespace std;
@@ -24,13 +24,10 @@ Client client;
 void
 Cmd_Help(int argc, const char *argv[])
 {
-    cout << "create     Create a node" << endl;
     cout << "echo       Echo arguments" << endl;
     cout << "exit       Exit shell" << endl;
     cout << "get        Get a node" << endl;
     cout << "help       Display the list of commands" << endl;
-    cout << "remove     Remove a node" << endl;
-    cout << "set        Set a node" << endl;
 }
 
 void
@@ -43,57 +40,6 @@ Cmd_Echo(int argc, const char *argv[])
         cout << argv[i] << " ";
     }
     cout << endl;
-}
-
-void
-Cmd_Create(int argc, const char *argv[])
-{
-    if (argc != 3) {
-        cout << "Usage: create PATH VALUE" << endl;
-        return;
-    }
-
-    try {
-        if (client.create(argv[1], argv[2]))
-            cout << "CREATED" << endl;
-        else
-            cout << "KEY ALREADY EXISTS" << endl;
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
-}
-
-void
-Cmd_Remove(int argc, const char *argv[])
-{
-    if (argc != 2) {
-        cout << "Usage: remove PATH" << endl;
-        return;
-    }
-
-    try {
-        if (client.remove(argv[1]))
-            cout << "REMOVED" << endl;
-        else
-            cout << "KEY NOT FOUND" << endl;
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
-}
-
-void
-Cmd_Set(int argc, const char *argv[])
-{
-    if (argc != 3) {
-        cout << "Usage: set PATH VALUE" << endl;
-        return;
-    }
-
-    try {
-        client.set(argv[1], argv[2]);
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
 }
 
 void
@@ -164,14 +110,8 @@ DispatchCommand(char *buf)
         Cmd_Echo(argc, (const char **)argv);
     } else if (cmd == "exit") {
         exit(0);
-    } else if (cmd == "create") {
-        Cmd_Create(argc, (const char **)argv);
-    } else if (cmd == "remove") {
-        Cmd_Remove(argc, (const char **)argv);
     } else if (cmd == "get") {
         Cmd_Get(argc, (const char **)argv);
-    } else if (cmd == "set") {
-        Cmd_Set(argc, (const char **)argv);
     } else if (cmd == "list") {
         Cmd_List(argc, (const char **)argv);
     } else if (cmd == "#") {

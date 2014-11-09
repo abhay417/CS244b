@@ -2,7 +2,7 @@
 LIBCLIENT_SRC := libclient/client.cc
 
 LIBCLIENT_OBJ := $(LIBCLIENT_SRC:.cc=.o)
-$(LIBCLIENT_OBJ): include/server.hh
+$(LIBCLIENT_OBJ): include/cacheserver.hh
 
 libclient/%.o: libclient/%.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<

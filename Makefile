@@ -19,16 +19,16 @@ LDFLAGS := -g -pthread $(LIBDIRS)
 
 default: all
 
-include server/Makefile
+include cacheserver/Makefile
 include libclient/Makefile
 include shell/Makefile
 
 .PHONY: all clean xdrpp
 
-all: xdrpp include/server.hh libclient/libclient.a server/server shell/shell 
+all: xdrpp include/cacheserver.hh libclient/libclient.a cacheserver/cacheserver shell/shell 
 
-include/server.hh: include/server.x
-	$(XDRC) -hh -o include/server.hh $<
+include/cacheserver.hh: include/cacheserver.x
+	$(XDRC) -hh -o include/cacheserver.hh $<
 
 xdrpp:
 	+git submodule update --init
@@ -36,8 +36,8 @@ xdrpp:
 	$(MAKE) -C xdrpp
 
 clean:
-	rm -f server/server
-	rm -f server/*.o
+	rm -f cacheserver/cacheserver
+	rm -f cacheserver/*.o
 	rm -f libclient/*.o
 	rm -f libclient/libclient.a
 	rm -f shell/*.o
