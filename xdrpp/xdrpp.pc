@@ -1,0 +1,12 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+bindir=${exec_prefix}/bin
+xdrc=${bindir}/xdrc
+
+Name: xdrpp
+Description: RFC5531 RPC library
+Version: 0
+Libs: -L${libdir} -lxdrpp
+Cflags: -I${includedir}
