@@ -45,9 +45,10 @@ class httpclient {
 	  char * creq = strdup(req.c_str());
 	  int socketfd, fd;
 	  char * chost = strdup(host.c_str());
-	  char * port = "80\0";
+          std::string port = "80";
+	  char * cport = strdup(port.c_str());
 	  
-	  if ((socketfd = open_socketfd(chost, "80", AI_V4MAPPED, &connect)) < 0) {
+	  if ((socketfd = open_socketfd(chost, cport, AI_V4MAPPED, &connect)) < 0) {
 	    std::cerr << "Error connecting to server " << host << std::endl;
 	  } else {
 	    // std::cout << "cacheclient connected to source host" << std::endl;
@@ -64,8 +65,11 @@ class httpclient {
 	      std::cerr << "read response failed, n = " << n << std::endl;
 	    }
 	    // std::cout << "response: " << buf << " : bytes: " << n << std::endl;
-	    close(socketfd);
+	    close(socketfd);            
 	  }
+          free(creq);
+          free(chost);
+          free(cport);
 	  return std::string(buf);
 	}
 
