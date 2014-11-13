@@ -2,28 +2,17 @@
 // Scaffolding originally generated from include/server.x.
 // Edit to add functionality.
 
-#ifndef __XDR_CACHESERVER_CACHESERVERIMPL_HH_INCLUDED__
-#define __XDR_CACHESERVER_CACHESERVERIMPL_HH_INCLUDED__ 1
+#ifndef __XDR_SERVER_CACHESERVER_HH_INCLUDED__
+#define __XDR_SERVER_CACHESERVER_HH_INCLUDED__ 1
 
-#include "serverdb.h"
+#include "include/server.hh"
 
-#include "include/cacheserver.hh"
-
-class api_v1_cacheserver {
+class cache_api_v1_server {
 public:
-  using rpc_interface_type = api_v1;
+  using rpc_interface_type = cache_api_v1;
 
-  api_v1_cacheserver() : db() { }
-  ~api_v1_cacheserver() {}
-
-  std::unique_ptr<Result> list(std::unique_ptr<longstring> arg);
-  std::unique_ptr<Result> find(std::unique_ptr<longstring> arg);
-  std::unique_ptr<Result> get(std::unique_ptr<longstring> arg);
-
-private:
-  bool isPathGood(std::string);
-  bool checkParents(std::string);
-  ServerDB db;
+  //std::unique_ptr<bytestream> getCacheContent(std::unique_ptr<longstring> arg);
+  std::unique_ptr<longstring> getCacheContents(std::unique_ptr<longstring> arg);
 };
 
-#endif // !__XDR_CACHESERVER_CACHESERVERIMPL_HH_INCLUDED__
+#endif // !__XDR_SERVER_CACHESERVERL_HH_INCLUDED__

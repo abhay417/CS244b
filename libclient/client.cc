@@ -5,17 +5,13 @@
 #include <iostream>
 #include <set>
 #include <string>
-#include <iostream>
-#include <sstream>
-#include <vector>
-
 
 #include <xdrpp/srpc.h>
 #include <xdrpp/rpcbind.hh>
 #include <xdrpp/socket.h>
 
 #include <include/rpcconfig.h>
-#include <include/cacheserver.hh>
+#include <include/server.hh>
 #include <include/client.h>
 
 using namespace std;
@@ -39,7 +35,7 @@ Client::open(const std::string &host)
         exit(1);
     }
 
-    auto fd = tcp_connect(host.c_str(), UNIQUE_RPC_PORT);
+    auto fd = tcp_connect(host.c_str(), UNIQUE_MASTER_PORT);
     client = new srpc_client<api_v1>{fd.release()};
 }
 
@@ -58,29 +54,41 @@ Client::isConnected()
     return client != NULL;
 }
 
-std::string
-Client::get(const std::string &path)
+void
+Client::heartbeat(const string& ip)
 {
-    auto r = client->get(path);
-    bool ret = r->success;
-    if (!ret) {
-      if (r->code < 5)
-        throw ClientException((ClientError)r->code);
-    }
-    return r->val;
+  //XXX: modify this to send own IP address
+
+  struct heartbeat hb;
+  hb.nodeIP = ip;
+  hb.timeStamp = 0;
+
+  client->sendHeartbeat(hb);
 }
 
-std::set<string>
-Client::list(const string &path)
+string
+Client::getCacheServer(const string& url)
 {
-    auto r = client->list(path);
-    bool ret = r->success;
-    if (!ret) {
-      if (r->code < 5)
-        throw ClientException((ClientError)r->code);
-    }
-    std::string val = r->val;
-    std::set<std::string> retSet;
-    return retSet;
+  //XXX: modify this to send own IP address
+  longstring urlStr = url;
+  auto ip = client->getCacheServer(urlStr);
+  return *ip;
 }
 
+string
+Client::getCacheContents(const string& cacheHost,
+                         const string& url)
+{
+  longstring urlStr = url;
+  
+  auto fd = tcp_connect(cacheHost.c_str(), UNIQUE_CACHESERVER_PORT);
+  auto cclient = new srpc_client<cache_api_v1>{fd.release()};
+
+  auto res = cclient->getCacheContents(urlStr);
+  string ret = *res;
+  cout << ret << endl;
+
+  delete cclient;
+
+  return ret;
+}

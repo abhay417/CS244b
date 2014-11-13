@@ -11,7 +11,7 @@ XDRC = $(shell $(PKGCONFIG) --variable=xdrc xdrpp)
 
 CPPFLAGS := `$(PKGCONFIG) --cflags xdrpp` -I.
 LIBDIRS := -Llibclient
-LIBS := -lclient `$(PKGCONFIG) --libs xdrpp` -ldl
+LIBS := -lclient -lcrypto `$(PKGCONFIG) --libs xdrpp` -ldl
 
 CFLAGS := -ggdb3 -O0 -pthread
 CXXFLAGS := -ggdb3 -O0 -pthread -std=c++11
@@ -19,19 +19,17 @@ LDFLAGS := -g -pthread $(LIBDIRS)
 
 default: all
 
+include server/Makefile
 include cacheserver/Makefile
-include masterserver/Makefile
 include libclient/Makefile
 include shell/Makefile
 
 .PHONY: all clean xdrpp
 
-all: xdrpp include/cacheserver.hh include/masterserver.hh libclient/libclient.a cacheserver/cacheserver masterserver/masterserver shell/cacheshell shell/mastershell
+all: xdrpp include/server.hh libclient/libclient.a server/server cacheserver/cacheserver shell/shell 
 
-include/cacheserver.hh: include/cacheserver.x
-	$(XDRC) -hh -o include/cacheserver.hh $<
-include/masterserver.hh: include/masterserver.x
-	$(XDRC) -hh -o include/masterserver.hh $<
+include/server.hh: include/server.x
+	$(XDRC) -hh -o include/server.hh $<
 
 xdrpp:
 	+git submodule update --init
@@ -39,14 +37,14 @@ xdrpp:
 	$(MAKE) -C xdrpp
 
 clean:
+	rm -f server/server
 	rm -f cacheserver/cacheserver
-	rm -f masterserver/masterserver
+	rm -f server/*.o
 	rm -f cacheserver/*.o
-	rm -f masterserver/*.o
 	rm -f libclient/*.o
 	rm -f libclient/libclient.a
 	rm -f shell/*.o
-	rm -f shell/*shell
+	rm -f shell/shell
 	! test -f xdrpp/Makefile || cd xdrpp && $(MAKE) clean
 
 README.html: README.md

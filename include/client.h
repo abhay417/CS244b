@@ -22,10 +22,6 @@ enum ClientError {
      * The key path violates our formatting rules
      */
     MALFORMED_KEY,
-   /*
-    * Other server side exception
-    */
-    SERVER_EXCEPTOION,
 };
 
 /*
@@ -76,39 +72,27 @@ public:
      */
     bool isConnected();
     /*
-     * Creates a key with specified path and value
+     * Sends heartbeat to the hash ring server
      *
-     * Return Value: true if key was created, false if key already exists
+     * Return Value: void
      */
-    bool create(const std::string &path, const std::string &val);
+    void heartbeat(const std::string& ip);
     /*
-     * Removes a key
+     * Gets the IP address of the Cache server
      *
-     * Return Value: true if key was removed, false if the key does not exist
+     * Return Value: IP address of the cache server
      */
-    bool remove(const std::string &path);
+    std::string getCacheServer(const std::string& url);
     /*
-     * Get the value of the specified key
+     * Gets the IP address of the Cache server
      *
-     * Return Value: Value of the key
-     * Throws an exception if the key is not found
+     * Return Value: IP address of the cache server
      */
-    std::string get(const std::string &path);
-    /*
-     * Set the value of the specified key
-     *
-     * Throws an exception if the key is not found
-     */
-    void set(const std::string &path, const std::string &val);
-    /*
-     * List all sub-keys
-     *
-     * Return Value: A set of all keys
-     * Throws an exception if the key is not found
-     */
-    std::set<std::string> list(const std::string &path);
+    std::string getCacheContents(const std::string& cacheHost,
+                                 const std::string& url);
 private:
     xdr::srpc_client<api_v1> *client;
+    //xdr::srpc_client<cache_api_v1> *cacheClient;
 };
 
 #endif /* __CLIENT_H__ */

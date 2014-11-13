@@ -1,4 +1,4 @@
 
-// TODO: Modify the RPC Port to be unique
-#define UNIQUE_RPC_PORT     "4004"
+#define UNIQUE_MASTER_PORT       "4004"
+#define UNIQUE_CACHESERVER_PORT  "4005"
 
