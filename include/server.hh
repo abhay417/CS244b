@@ -8,7 +8,7 @@
 #include <xdrpp/types.h>
 
 using longstring = xdr::xstring<>;
-using bytestream = xdr::opaque_vec<>;
+using cache_data = longstring;
 
 struct heartbeat {
   longstring nodeIP{};
@@ -127,8 +127,8 @@ struct cache_api_v1 {
     static constexpr const char *proc_name = "getCacheContents";
     using arg_type = longstring;
     using arg_wire_type = longstring;
-    using res_type = longstring;
-    using res_wire_type = longstring;
+    using res_type = cache_data;
+    using res_wire_type = cache_data;
     
     template<typename C, typename...A> static auto
     dispatch(C &&c, A &&...a) ->

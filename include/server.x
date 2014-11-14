@@ -1,5 +1,6 @@
 typedef string longstring<>;
-typedef opaque bytestream<>;
+//typedef opaque cache_data<>;
+typedef longstring cache_data;
 
 struct heartbeat {
 	longstring nodeIP;
@@ -15,7 +16,7 @@ program server_api {
 
 program cache_server_api {
   version cache_api_v1 {
-    longstring getCacheContents(longstring) = 1;
+    cache_data getCacheContents(longstring) = 1;
   } = 1;
 } = 0x80048086;
 
