@@ -14,7 +14,7 @@ public:
 
   std::unique_ptr<cache_data> getCacheContents(std::unique_ptr<longstring> arg);
 private: 
-  lru_cache cache;
+  lru_cache<cache_data> cache;
 };
 
 #endif // !__XDR_SERVER_CACHESERVERL_HH_INCLUDED__

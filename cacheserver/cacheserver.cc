@@ -8,6 +8,7 @@
 #include "include/rpcconfig.h"
 
 #include "cacheserverimpl.hh"
+//#include "lrucache.hh"
 //pthreads
 #include <pthread.h>
 
@@ -43,28 +44,53 @@ void* heartbeat_loop(void * val)
 
 int main(int argc, const char *argv[])
 {
-    if (argc != 2) {
-      cout << "Usage: cacheserver MasterIP" << endl;
-      return 0;
-    }
+  /* LRU test code that I just stuck in this main function
+   * because I'm lazy.
 
-    pthread_t heartbeat_thread;
-    int hb_res = pthread_create(&heartbeat_thread, NULL,
-                                heartbeat_loop, (void*)argv[1]);
-    if (hb_res) {
-      cout << "Failed to create HB thread: Ret code: " << hb_res << endl;
-    } 
+  lru_cache<int> cache(3);
+  cout << cache << endl;
+  cache.put("a", 1);
+  cout << cache << endl;
+  cache.put("b", 2);
+  cout << cache << endl;
+  cache.put("c", 3);
+  cout << cache << endl;
+  cache.put("d", 4);
+  cout << cache << endl;
+  cache.put("e", 5);
+  cout << cache << endl;
+  cache.get("c");
+  cout << cache << endl;
+  cache.get("e");
+  cout << cache << endl;
+  cache.put("f", 6);
+  cout << cache << endl;
+  return 0;
 
-    cache_api_v1_server s; 
-    rpc_tcp_listener rl(tcp_listen(UNIQUE_CACHESERVER_PORT, AF_INET));
+  */
 
-    try {
-        rl.register_service(s);
-        rl.run();
-    } catch (exception &e) {
-        cerr << e.what() << endl;
-    }
-
+  if (argc != 2) {
+    cout << "Usage: cacheserver MasterIP" << endl;
     return 0;
+  }
+
+  pthread_t heartbeat_thread;
+  int hb_res = pthread_create(&heartbeat_thread, NULL,
+                              heartbeat_loop, (void*)argv[1]);
+  if (hb_res) {
+    cout << "Failed to create HB thread: Ret code: " << hb_res << endl;
+  } 
+
+  cache_api_v1_server s; 
+  rpc_tcp_listener rl(tcp_listen(UNIQUE_CACHESERVER_PORT, AF_INET));
+
+  try {
+      rl.register_service(s);
+      rl.run();
+  } catch (exception &e) {
+      cerr << e.what() << endl;
+  }
+
+  return 0;
 }
 
