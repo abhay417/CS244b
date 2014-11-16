@@ -474,7 +474,7 @@ HAVE_SYS_STAT_H	xdrpp/config.h	32;"	d
 HAVE_SYS_TYPES_H	xdrpp/config.h	35;"	d
 HAVE_UNISTD_H	xdrpp/config.h	38;"	d
 HEADERS	xdrpp/Makefile	/^HEADERS = $(nodist_pkginclude_HEADERS) $(pkginclude_HEADERS)$/;"	m
-HEARTBEAT_INTERVAL	cacheserver/cacheserver.cc	25;"	d	file:
+HEARTBEAT_INTERVAL	cacheserver/cacheserver.cc	30;"	d	file:
 HasRowid	server/sqlite3.c	11136;"	d	file:
 Hash	server/sqlite3.c	/^struct Hash {$/;"	s	file:
 Hash	server/sqlite3.c	/^typedef struct Hash Hash;$/;"	t	typeref:struct:Hash	file:
@@ -3214,16 +3214,15 @@ _XDRPP_SOCKET_H_HEADER_INCLUDED_	xdrpp/xdrpp/socket.h	4;"	d
 _XDRPP_SRPC_H_HEADER_INCLUDED_	xdrpp/xdrpp/srpc.h	4;"	d
 _XOPEN_SOURCE	server/sqlite3.c	8042;"	d	file:
 __CLIENT_H__	include/client.h	3;"	d
+__LRU_CACHE_H__	cacheserver/lrucache.hh	2;"	d
 __SERVERDB_H__	cacheserver/serverdb.h	3;"	d
 __SERVERDB_H__	server/serverdb.h	3;"	d
 __SERVER_HELPERS_HH_INCLUDED__	include/helpers.hh	2;"	d
 __SERVER_HTTPCLIENT_HH_INCLUDED__	include/httpclient.hh	2;"	d
 __SQLSTMT_H__	server/sqlstmt.h	3;"	d
 __STDC_LIMIT_MACROS	xdrpp/xdrc/scan.cc	39;"	d	file:
-__XDR_INCLUDE_SERVER_HH_INCLUDED__	include/old_server.hh	6;"	d
 __XDR_INCLUDE_SERVER_HH_INCLUDED__	include/server.hh	6;"	d
 __XDR_SERVER_CACHESERVER_HH_INCLUDED__	cacheserver/cacheserverimpl.hh	6;"	d
-__XDR_SERVER_SERVERIMPL_HH_INCLUDED__	server/new.hh	6;"	d
 __XDR_SERVER_SERVERIMPL_HH_INCLUDED__	server/serverimpl.hh	6;"	d
 __XDR_XDRPP_RPCBIND_HH_INCLUDED__	xdrpp/xdrpp/rpcbind.hh	6;"	d
 __XDR_XDRPP_RPC_MSG_HH_INCLUDED__	xdrpp/xdrpp/rpc_msg.hh	6;"	d
@@ -3604,9 +3603,7 @@ apTrigger	server/sqlite3.c	/^  Trigger *apTrigger[2];\/* Triggers for aAction[] 
 apVtabLock	server/sqlite3.c	/^  Table **apVtabLock;       \/* Pointer to virtual tables needing locking *\/$/;"	m	struct:Parse	file:
 apWiData	server/sqlite3.c	/^  volatile u32 **apWiData;   \/* Pointer to wal-index content in memory *\/$/;"	m	struct:Wal	file:
 apiOomError	server/sqlite3.c	/^static SQLITE_NOINLINE int apiOomError(sqlite3 *db){$/;"	f	file:
-api_v1	include/old_server.hh	/^struct api_v1 {$/;"	s
 api_v1	include/server.hh	/^struct api_v1 {$/;"	s
-api_v1_server	server/new.hh	/^class api_v1_server {$/;"	c
 api_v1_server	server/serverimpl.hh	/^class api_v1_server {$/;"	c
 append	xdrpp/xdrpp/types.h	/^  void append(const T *elems, std::size_t n) {$/;"	f	struct:xdr::xvector
 apply	xdrpp/xdrpp/cereal.h	/^  apply(Archive &ar, T &&t, const char *field) {$/;"	f	struct:xdr::detail::nvp_adapter
@@ -3864,22 +3861,20 @@ busy_timeout	server/sqlite3.c	/^  int  (*busy_timeout)(sqlite3*,int ms);$/;"	m	s
 cId	server/sqlite3.c	/^  char cId;             \/* Symbolic ID of this loop for debugging use *\/$/;"	m	struct:WhereLoop	file:
 cType	server/sqlite3.c	/^static const char cType[] = {$/;"	v	file:
 c_str	server/sqlstmt.h	/^  const char *c_str(int i) {$/;"	f	class:SQLStmt
+cache	cacheserver/cacheserverimpl.hh	/^  lru_cache<vector<uint8_t>> cache;$/;"	m	class:cache_api_v1_server
+cache	cacheserver/lrucache.hh	/^  std::unordered_map<std::string, node*> cache;$/;"	m	class:lru_cache
 cacheCtr	server/sqlite3.c	/^  u32 cacheCtr;           \/* VdbeCursor row cache generation counter *\/$/;"	m	struct:Vdbe	file:
 cacheEntryClear	server/sqlite3.c	/^static void cacheEntryClear(Parse *pParse, struct yColCache *p){$/;"	f	file:
 cacheStatus	server/sqlite3.c	/^  u32 cacheStatus;      \/* Cache is valid if this matches Vdbe.cacheCtr *\/$/;"	m	struct:VdbeCursor	file:
 cacheTransfer	include/server.hh	/^struct cacheTransfer {$/;"	s
-cache_api_v1	include/old_server.hh	/^struct cache_api_v1 {$/;"	s
 cache_api_v1	include/server.hh	/^struct cache_api_v1 {$/;"	s
 cache_api_v1_server	cacheserver/cacheserverimpl.hh	/^class cache_api_v1_server {$/;"	c
-cache_api_v1_server	server/new.hh	/^class cache_api_v1_server {$/;"	c
 cache_size	server/sqlite3.c	/^  int cache_size;      \/* Number of pages to use in the cache *\/$/;"	m	struct:Schema	file:
 callCollNeeded	server/sqlite3.c	/^static void callCollNeeded(sqlite3 *db, int enc, const char *zName){$/;"	f	file:
 callFinaliser	server/sqlite3.c	/^static void callFinaliser(sqlite3 *db, int offset){$/;"	f	file:
 callStatGet	server/sqlite3.c	/^static void callStatGet(Vdbe *v, int regStat4, int iParam, int regOut){$/;"	f	file:
 call_args	xdrpp/xdrpp/rpcbind.hh	/^struct call_args {$/;"	s	namespace:xdr
 call_body	xdrpp/xdrpp/rpc_msg.hh	/^struct call_body {$/;"	s	namespace:xdr
-call_dispatch	include/old_server.hh	/^  call_dispatch(T &&t, std::uint32_t proc, A &&...a) {$/;"	f	struct:api_v1
-call_dispatch	include/old_server.hh	/^  call_dispatch(T &&t, std::uint32_t proc, A &&...a) {$/;"	f	struct:cache_api_v1
 call_dispatch	include/server.hh	/^  call_dispatch(T &&t, std::uint32_t proc, A &&...a) {$/;"	f	struct:api_v1
 call_dispatch	include/server.hh	/^  call_dispatch(T &&t, std::uint32_t proc, A &&...a) {$/;"	f	struct:cache_api_v1
 call_dispatch	xdrpp/xdrpp/rpcbind.hh	/^  call_dispatch(T &&t, std::uint32_t proc, A &&...a) {$/;"	f	struct:xdr::PMAP_VERS
@@ -3954,8 +3949,6 @@ clearSelect	server/sqlite3.c	/^static void clearSelect(sqlite3 *db, Select *p){$
 clearYMD_HMS_TZ	server/sqlite3.c	/^static void clearYMD_HMS_TZ(DateTime *p){$/;"	f	file:
 clear_bindings	server/sqlite3.c	/^  int (*clear_bindings)(sqlite3_stmt*);$/;"	m	struct:sqlite3_api_routines	file:
 client	include/client.h	/^    xdr::srpc_client<api_v1> *client;$/;"	m	class:Client
-client	include/old_server.hh	/^  template<typename _XDRBASE> struct client : _XDRBASE {$/;"	s	struct:api_v1
-client	include/old_server.hh	/^  template<typename _XDRBASE> struct client : _XDRBASE {$/;"	s	struct:cache_api_v1
 client	include/server.hh	/^  template<typename _XDRBASE> struct client : _XDRBASE {$/;"	s	struct:api_v1
 client	include/server.hh	/^  template<typename _XDRBASE> struct client : _XDRBASE {$/;"	s	struct:cache_api_v1
 client	xdrpp/xdrpp/rpcbind.hh	/^  template<typename _XDRBASE> struct client : _XDRBASE {$/;"	s	struct:xdr::PMAP_VERS
@@ -4051,6 +4044,7 @@ const_list	xdrpp/xdrc/xdrc_internal.h	/^    union_entry<vec<rpc_const>> const_li
 constraintName	server/sqlite3.c	/^  Token constraintName;\/* Name of the constraint currently being parsed *\/$/;"	m	struct:Parse	file:
 constructAutomaticIndex	server/sqlite3.c	/^static void constructAutomaticIndex($/;"	f	file:
 constructed	xdrpp/xdrc/union.h	/^  bool constructed() const { return typeid(union_entry) == typeid(*this); }$/;"	f	class:union_entry
+contains	cacheserver/lrucache.hh	/^  bool contains(std::string key) {$/;"	f	class:lru_cache
 contextMalloc	server/sqlite3.c	/^static void *contextMalloc(sqlite3_context *context, i64 nByte){$/;"	f	file:
 context_db_handle	server/sqlite3.c	/^  sqlite3 *(*context_db_handle)(sqlite3_context*);$/;"	m	struct:sqlite3_api_routines	file:
 convert	xdrpp/xdrpp/iniparse.h	/^  template<typename T> void convert(T *rp) const { from_string(value_, rp); }$/;"	f	class:xdr::IniLine
@@ -4102,6 +4096,7 @@ currentOut	server/sqlite3.c	/^  u32 currentOut;     \/* Current checkout, includ
 currentTimeFunc	server/sqlite3.c	/^static void currentTimeFunc($/;"	f	file:
 cursorHoldsMutex	server/sqlite3.c	/^static int cursorHoldsMutex(BtCursor *p){$/;"	f	file:
 cycles	server/sqlite3.c	/^  u64 cycles;              \/* Total time spent executing this instruction *\/$/;"	m	struct:VdbeOp	file:
+data	cacheserver/lrucache.hh	/^    T data;$/;"	m	struct:lru_cache::node
 data	server/sqlite3.c	/^  void *data;                  \/* Data associated with this element *\/$/;"	m	struct:HashElem	file:
 data	server/sqlite3.c	/^  void *data;                \/* Data associated with this element *\/$/;"	m	struct:Fts3HashElem	file:
 data	xdrpp/xdrpp/message.h	/^  char *data() { return buf_ + 4; }$/;"	f	class:xdr::message_t
@@ -4163,15 +4158,6 @@ decl_type	xdrpp/xdrc/gen_hh.cc	/^decl_type(const rpc_decl &d)$/;"	f	namespace:__
 declareVtab	server/sqlite3.c	/^  u8 declareVtab;           \/* True if inside sqlite3_declare_vtab() *\/$/;"	m	struct:Parse	file:
 declare_vtab	server/sqlite3.c	/^  int (*declare_vtab)(sqlite3*,const char*);$/;"	m	struct:sqlite3_api_routines	file:
 decls	xdrpp/xdrc/xdrc_internal.h	/^  vec<rpc_decl> decls;$/;"	m	struct:rpc_struct
-decltype	include/old_server.hh	/^    decltype(c.getCacheContents(std::forward<A>(a)...)) {$/;"	f	struct:cache_api_v1::getCacheContents_t
-decltype	include/old_server.hh	/^    decltype(c.getCacheContents(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {$/;"	f	struct:cache_api_v1::getCacheContents_t
-decltype	include/old_server.hh	/^    decltype(c.getCacheServer(std::forward<A>(a)...)) {$/;"	f	struct:api_v1::getCacheServer_t
-decltype	include/old_server.hh	/^    decltype(c.getCacheServer(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {$/;"	f	struct:api_v1::getCacheServer_t
-decltype	include/old_server.hh	/^    decltype(c.sendHeartbeat(std::forward<A>(a)...)) {$/;"	f	struct:api_v1::sendHeartbeat_t
-decltype	include/old_server.hh	/^    decltype(c.sendHeartbeat(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {$/;"	f	struct:api_v1::sendHeartbeat_t
-decltype	include/old_server.hh	/^    decltype(this->_XDRBASE::template invoke<getCacheContents_t>(_xdr_args...)) {$/;"	f	struct:cache_api_v1::client
-decltype	include/old_server.hh	/^    decltype(this->_XDRBASE::template invoke<getCacheServer_t>(_xdr_args...)) {$/;"	f	struct:api_v1::client
-decltype	include/old_server.hh	/^    decltype(this->_XDRBASE::template invoke<sendHeartbeat_t>(_xdr_args...)) {$/;"	f	struct:api_v1::client
 decltype	include/server.hh	/^    decltype(c.getCacheContents(std::forward<A>(a)...)) {$/;"	f	struct:cache_api_v1::getCacheContents_t
 decltype	include/server.hh	/^    decltype(c.getCacheContents(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {$/;"	f	struct:cache_api_v1::getCacheContents_t
 decltype	include/server.hh	/^    decltype(c.getCacheServer(std::forward<A>(a)...)) {$/;"	f	struct:api_v1::getCacheServer_t
@@ -4434,6 +4420,7 @@ etTOKEN	server/sqlite3.c	20775;"	d	file:
 et_getdigit	server/sqlite3.c	/^static char et_getdigit(LONGDOUBLE_TYPE *val, int *cnt){$/;"	f	file:
 et_info	server/sqlite3.c	/^typedef struct et_info {   \/* Information about each format field *\/$/;"	s	file:
 et_info	server/sqlite3.c	/^} et_info;$/;"	t	typeref:struct:et_info	file:
+evict	cacheserver/lrucache.hh	/^  void evict() {$/;"	f	class:lru_cache
 exclMask	server/sqlite3.c	/^  u16 exclMask;              \/* Mask of exclusive locks held *\/$/;"	m	struct:unixShm	file:
 exclMask	server/sqlite3.c	/^  u16 exclMask;              \/* Mask of exclusive locks held *\/$/;"	m	struct:winShm	file:
 exclMask	server/sqlite3.c	/^  u8 exclMask;               \/* Mask of exclusive locks held *\/$/;"	m	struct:unixShmNode	file:
@@ -4923,6 +4910,7 @@ generateOutputSubroutine	server/sqlite3.c	/^static int generateOutputSubroutine(
 generateSortTail	server/sqlite3.c	/^static void generateSortTail($/;"	f	file:
 generateWithRecursiveQuery	server/sqlite3.c	/^static void generateWithRecursiveQuery($/;"	f	file:
 geomCallback	server/sqlite3.c	/^static void geomCallback(sqlite3_context *ctx, int nArg, sqlite3_value **aArg){$/;"	f	file:
+get	cacheserver/lrucache.hh	/^  T get(std::string key) {$/;"	f	class:lru_cache
 get	cacheserver/serverdb.cc	/^ServerDB::get(const string &key)$/;"	f	class:ServerDB
 get	server/serverdb.cc	/^ServerDB::get(const string &path)$/;"	f	class:ServerDB
 get	server/sqlstmt.h	/^  sqlite3_stmt *get() { return stmt_; }$/;"	f	class:SQLStmt
@@ -4943,13 +4931,9 @@ getAndInitPage	server/sqlite3.c	/^static int getAndInitPage($/;"	f	file:
 getAutoVacuum	server/sqlite3.c	/^static int getAutoVacuum(const char *z){$/;"	f	file:
 getCacheContents	cacheserver/cacheserverimpl.cc	/^cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)$/;"	f	class:cache_api_v1_server
 getCacheContents	libclient/client.cc	/^Client::getCacheContents(const string& cacheHost,$/;"	f	class:Client
-getCacheContents	server/new.cc	/^cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)$/;"	f	class:cache_api_v1_server
-getCacheContents_t	include/old_server.hh	/^  struct getCacheContents_t {$/;"	s	struct:cache_api_v1
 getCacheContents_t	include/server.hh	/^  struct getCacheContents_t {$/;"	s	struct:cache_api_v1
 getCacheServer	libclient/client.cc	/^Client::getCacheServer(const string& url)$/;"	f	class:Client
-getCacheServer	server/new.cc	/^api_v1_server::getCacheServer(std::unique_ptr<longstring> arg)$/;"	f	class:api_v1_server
 getCacheServer	server/serverimpl.cc	/^api_v1_server::getCacheServer(std::unique_ptr<longstring> arg)$/;"	f	class:api_v1_server
-getCacheServer_t	include/old_server.hh	/^  struct getCacheServer_t {$/;"	s	struct:api_v1
 getCacheServer_t	include/server.hh	/^  struct getCacheServer_t {$/;"	s	struct:api_v1
 getCellInfo	server/sqlite3.c	/^  static void getCellInfo(BtCursor *pCur){$/;"	f	file:
 getCellInfo	server/sqlite3.c	55909;"	d	file:
@@ -5040,7 +5024,7 @@ hashDestroy	server/sqlite3.c	/^static void hashDestroy(void *p){$/;"	f	file:
 hdr	server/sqlite3.c	/^    } hdr;$/;"	m	union:Mem3Block::__anon10	typeref:struct:Mem3Block::__anon10::__anon11	file:
 hdr	server/sqlite3.c	/^  WalIndexHdr hdr;           \/* Wal-index header for current transaction *\/$/;"	m	struct:Wal	file:
 hdrOffset	server/sqlite3.c	/^  u8 hdrOffset;        \/* 100 for page 1.  0 otherwise *\/$/;"	m	struct:MemPage	file:
-heartbeat	include/old_server.hh	/^struct heartbeat {$/;"	s
+head	cacheserver/lrucache.hh	/^  node* head;$/;"	m	class:lru_cache
 heartbeat	include/server.hh	/^struct heartbeat {$/;"	s
 heartbeat	libclient/client.cc	/^Client::heartbeat(const string& ip)$/;"	f	class:Client
 heartbeat_loop	cacheserver/cacheserver.cc	/^void* heartbeat_loop(void * val)$/;"	f
@@ -5354,6 +5338,7 @@ input_file	xdrpp/xdrc/xdrc.cc	/^string input_file;$/;"	v
 insertBinaryOperator	server/sqlite3.c	/^static void insertBinaryOperator($/;"	f	file:
 insertCell	server/sqlite3.c	/^static void insertCell($/;"	f	file:
 insertElement	server/sqlite3.c	/^static void insertElement($/;"	f	file:
+insert_head	cacheserver/lrucache.hh	/^  void insert_head(node* n) {$/;"	f	class:lru_cache
 install_sh	xdrpp/Makefile	/^install_sh = ${SHELL} \/afs\/.ir\/users\/a\/b\/abhay\/cs244b\/lab1\/xdrpp\/install-sh$/;"	m
 install_sh_DATA	xdrpp/Makefile	/^install_sh_DATA = $(install_sh) -c -m 644$/;"	m
 install_sh_PROGRAM	xdrpp/Makefile	/^install_sh_PROGRAM = $(install_sh) -c$/;"	m
@@ -5481,6 +5466,7 @@ k	server/sqlite3.c	/^  int k;                     \/* Resume scanning at this->p
 kOnceFlag	xdrpp/xdrpp/pollset.h	/^  static constexpr int kOnceFlag = 0x4;$/;"	m	class:xdr::pollset
 kReadFlag	xdrpp/xdrpp/pollset.h	/^  static constexpr int kReadFlag = 0x1;$/;"	m	class:xdr::pollset
 kWriteFlag	xdrpp/xdrpp/pollset.h	/^  static constexpr int kWriteFlag = 0x2;$/;"	m	class:xdr::pollset
+key	cacheserver/lrucache.hh	/^    std::string key;$/;"	m	struct:lru_cache::node
 key	server/sqlite3.c	/^  Blob key;                       \/* Last key written to the current block *\/$/;"	m	struct:NodeWriter	file:
 key	server/sqlite3.c	/^struct AttachKey { int type;  Token key; };$/;"	m	struct:AttachKey	file:
 keyClass	server/sqlite3.c	/^  char keyClass;          \/* HASH_INT, _POINTER, _STRING, _BINARY *\/$/;"	m	struct:Fts3Hash	file:
@@ -5523,7 +5509,6 @@ list	server/sqlite3.c	/^  SorterList list;                \/* List for thread to
 list	server/sqlite3.c	/^  SorterList list;                \/* List of in-memory records *\/$/;"	m	struct:VdbeSorter	file:
 listen_fd_	xdrpp/xdrpp/server.h	/^  unique_fd listen_fd_;$/;"	m	class:xdr::rpc_tcp_listener
 litq	xdrpp/xdrc/scan.cc	/^vec<string> litq;$/;"	v
-load	include/old_server.hh	/^  load(Archive &ar, ::heartbeat &obj) {$/;"	f	struct:xdr::xdr_traits
 load	include/server.hh	/^  load(Archive &ar, ::cacheTransfer &obj) {$/;"	f	struct:xdr::xdr_traits
 load	include/server.hh	/^  load(Archive &ar, ::heartbeat &obj) {$/;"	f	struct:xdr::xdr_traits
 load	include/server.hh	/^  load(Archive &ar, ::newCacheServerInfo &obj) {$/;"	f	struct:xdr::xdr_traits
@@ -5582,6 +5567,8 @@ lookaside	server/sqlite3.c	/^  Lookaside lookaside;          \/* Lookaside mallo
 lookupName	server/sqlite3.c	/^static int lookupName($/;"	f	file:
 lowerFunc	server/sqlite3.c	/^static void lowerFunc(sqlite3_context *context, int argc, sqlite3_value **argv){$/;"	f	file:
 lru	server/sqlite3.c	/^    int lru;              \/* Least recently used entry has the smallest value *\/$/;"	m	struct:Parse::yColCache	file:
+lru_cache	cacheserver/lrucache.hh	/^  lru_cache(int max_size = 10) {$/;"	f	class:lru_cache
+lru_cache	cacheserver/lrucache.hh	/^class lru_cache {$/;"	c
 lseek	server/sqlite3.c	25040;"	d	file:
 m	server/sqlite3.c	/^  int h, m;          \/* Hour and minutes *\/$/;"	m	struct:DateTime	file:
 m	server/sqlite3.c	/^  sqlite3_mem_methods m;            \/* Low-level memory allocation interface *\/$/;"	m	struct:Sqlite3Config	file:
@@ -5639,6 +5626,7 @@ maxLocal	server/sqlite3.c	/^  u16 maxLocal;         \/* Maximum local payload in
 maxLocal	server/sqlite3.c	/^  u16 maxLocal;        \/* Copy of BtShared.maxLocal or BtShared.maxLeaf *\/$/;"	m	struct:MemPage	file:
 maxOut	server/sqlite3.c	/^  u32 maxOut;         \/* Maximum instantaneous currentOut *\/$/;"	m	struct:Mem5Global	file:
 maxRequest	server/sqlite3.c	/^  u32 maxRequest;     \/* Largest allocation (exclusive of internal frag) *\/$/;"	m	struct:Mem5Global	file:
+max_size	cacheserver/lrucache.hh	/^  int max_size;$/;"	m	class:lru_cache
 max_size	xdrpp/xdrpp/types.h	/^  static constexpr uint32_t max_size() { return N; }$/;"	f	struct:xdr::xstring
 max_size	xdrpp/xdrpp/types.h	/^  static constexpr uint32_t max_size() { return N; }$/;"	f	struct:xdr::xvector
 maxmsglen_	xdrpp/xdrpp/msgsock.h	/^  const size_t maxmsglen_;$/;"	m	class:xdr::msg_sock
@@ -6132,12 +6120,12 @@ netbuf	xdrpp/xdrpp/rpcbind.hh	/^struct netbuf {$/;"	s	namespace:xdr
 neverCorrupt	server/sqlite3.c	/^  int neverCorrupt;                 \/* Database is always well-formed *\/$/;"	m	struct:Sqlite3Config	file:
 newCacheServerInfo	include/server.hh	/^struct newCacheServerInfo {$/;"	s
 newCacheserverAdded	cacheserver/cacheserverimpl.cc	/^cache_api_v1_server::newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg)$/;"	f	class:cache_api_v1_server
-newCacheserverAdded	server/new.cc	/^cache_api_v1_server::newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg)$/;"	f	class:cache_api_v1_server
 newCacheserverAdded_t	include/server.hh	/^  struct newCacheserverAdded_t {$/;"	s	struct:cache_api_v1
 newDatabase	server/sqlite3.c	/^static int newDatabase(BtShared *pBt){$/;"	f	file:
 newRowid	server/sqlite3.c	/^static int newRowid(Rtree *pRtree, i64 *piRowid){$/;"	f	file:
 newTnum	server/sqlite3.c	/^    int newTnum;                \/* Rootpage of table being initialized *\/$/;"	m	struct:sqlite3::sqlite3InitInfo	file:
 newmask	server/sqlite3.c	/^  u32 newmask;         \/* Mask of new.* columns referenced *\/$/;"	m	struct:Parse	file:
+next	cacheserver/lrucache.hh	/^    node* next;$/;"	m	struct:lru_cache::node
 next	server/sqlite3.c	/^      u32 next;       \/* Index in mem3.aPool[] of next free chunk *\/$/;"	m	struct:Mem3Block::__anon10::__anon12	file:
 next	server/sqlite3.c	/^  Fts3HashElem *next, *prev; \/* Next and previous elements in the table *\/$/;"	m	struct:Fts3HashElem	file:
 next	server/sqlite3.c	/^  HashElem *next, *prev;       \/* Next and previous elements in the table *\/$/;"	m	struct:HashElem	file:
@@ -6162,6 +6150,8 @@ no_clear	xdrpp/xdrpp/types.h	/^constexpr no_clear_t no_clear;$/;"	m	namespace:xd
 no_clear_t	xdrpp/xdrpp/types.h	/^  constexpr no_clear_t() {}$/;"	f	struct:xdr::detail::no_clear_t
 no_clear_t	xdrpp/xdrpp/types.h	/^struct no_clear_t {$/;"	s	namespace:xdr::detail
 nocaseCollatingFunc	server/sqlite3.c	/^static int nocaseCollatingFunc($/;"	f	file:
+node	cacheserver/lrucache.hh	/^    node(std::string key, T data, node* prev = NULL, node* next = NULL) {$/;"	f	struct:lru_cache::node
+node	cacheserver/lrucache.hh	/^  struct node {$/;"	s	class:lru_cache
 nodeAcquire	server/sqlite3.c	/^static int nodeAcquire($/;"	f	file:
 nodeDeleteCell	server/sqlite3.c	/^static void nodeDeleteCell(Rtree *pRtree, RtreeNode *pNode, int iCell){$/;"	f	file:
 nodeGetCell	server/sqlite3.c	/^static void nodeGetCell($/;"	f	file:
@@ -6268,7 +6258,7 @@ openFlags	server/sqlite3.c	/^  u8 openFlags;         \/* Flags to sqlite3BtreeOp
 openFlags	server/sqlite3.c	/^  unsigned int openFlags;       \/* Flags passed to sqlite3_vfs.xOpen() *\/$/;"	m	struct:sqlite3	file:
 openStatTable	server/sqlite3.c	/^static void openStatTable($/;"	f	file:
 openSubJournal	server/sqlite3.c	/^static int openSubJournal(Pager *pPager){$/;"	f	file:
-open_socketfd	include/httpclient.cc	/^httpclient::open_socketfd(char *hostname, char* port, int flags,$/;"	f	class:httpclient
+open_socketfd	include/httpclient.cc	/^httpclient::open_socketfd(const string& hostname,$/;"	f	class:httpclient
 open_v2	server/sqlite3.c	/^  int (*open_v2)(const char*,sqlite3**,int,const char*);$/;"	m	struct:sqlite3_api_routines	file:
 operator ()	xdrpp/xdrpp/clear.h	/^  operator()(T &t) const { t = T{}; }$/;"	f	struct:xdr::detail::xdr_clear_t
 operator ()	xdrpp/xdrpp/clear.h	/^  operator()(T &t) const { t.resize(0); }$/;"	f	struct:xdr::detail::xdr_clear_t
@@ -6308,6 +6298,7 @@ operator ->	xdrpp/xdrc/union.h	/^  T *operator->() { return get(); }$/;"	f	class
 operator ->	xdrpp/xdrc/union.h	/^  T *operator->() { return get(); }$/;"	f	class:union_ptr
 operator ->	xdrpp/xdrc/union.h	/^  const T *operator->() const { return get(); }$/;"	f	class:union_entry
 operator ->	xdrpp/xdrc/union.h	/^  const T *operator->() const { return get(); }$/;"	f	class:union_ptr
+operator <<	cacheserver/lrucache.hh	/^  friend std::ostream& operator<<(std::ostream& out, const lru_cache& cache) {$/;"	f	class:lru_cache
 operator <<	xdrpp/xdrc/xdrc_internal.h	/^  friend ostream &operator<<(ostream &os, omanip &m) {$/;"	f	struct:omanip
 operator =	xdrpp/xdrc/union.h	/^  template<typename TT> union_entry &operator=(TT &&tt) {$/;"	f	class:union_entry
 operator =	xdrpp/xdrc/union.h	/^  union_entry &operator=(const union_entry &ue) {$/;"	f	class:union_entry
@@ -7085,6 +7076,7 @@ prereq	server/sqlite3.c	/^  Bitmask prereq;       \/* Bitmask of other loops tha
 prereq	server/sqlite3.c	/^  Bitmask prereq;     \/* Prerequisites *\/$/;"	m	struct:WhereOrCost	file:
 prereqAll	server/sqlite3.c	/^  Bitmask prereqAll;      \/* Bitmask of tables referenced by pExpr *\/$/;"	m	struct:WhereTerm	file:
 prereqRight	server/sqlite3.c	/^  Bitmask prereqRight;    \/* Bitmask of tables used by pExpr->pRight *\/$/;"	m	struct:WhereTerm	file:
+prev	cacheserver/lrucache.hh	/^    node* prev;$/;"	m	struct:lru_cache::node
 prev	server/sqlite3.c	/^      u32 prev;       \/* Index in mem3.aPool[] of previous free chunk *\/$/;"	m	struct:Mem3Block::__anon10::__anon12	file:
 prev	server/sqlite3.c	/^  Fts3HashElem *next, *prev; \/* Next and previous elements in the table *\/$/;"	m	struct:Fts3HashElem	file:
 prev	server/sqlite3.c	/^  HashElem *next, *prev;       \/* Next and previous elements in the table *\/$/;"	m	struct:HashElem	file:
@@ -7092,9 +7084,6 @@ prev	server/sqlite3.c	/^  int prev;       \/* Index of previous free chunk *\/$/
 prevSize	server/sqlite3.c	/^      u32 prevSize;   \/* Size of previous chunk in Mem3Block elements *\/$/;"	m	struct:Mem3Block::__anon10::__anon11	file:
 print_pager_state	server/sqlite3.c	/^static char *print_pager_state(Pager *p){$/;"	f	file:
 printfFunc	server/sqlite3.c	/^static void printfFunc($/;"	f	file:
-proc	include/old_server.hh	/^    static constexpr std::uint32_t proc = 1;$/;"	m	struct:api_v1::sendHeartbeat_t
-proc	include/old_server.hh	/^    static constexpr std::uint32_t proc = 1;$/;"	m	struct:cache_api_v1::getCacheContents_t
-proc	include/old_server.hh	/^    static constexpr std::uint32_t proc = 2;$/;"	m	struct:api_v1::getCacheServer_t
 proc	include/server.hh	/^    static constexpr std::uint32_t proc = 1;$/;"	m	struct:api_v1::sendHeartbeat_t
 proc	include/server.hh	/^    static constexpr std::uint32_t proc = 1;$/;"	m	struct:cache_api_v1::getCacheContents_t
 proc	include/server.hh	/^    static constexpr std::uint32_t proc = 2;$/;"	m	struct:api_v1::getCacheServer_t
@@ -7127,9 +7116,6 @@ proc	xdrpp/xdrpp/rpcbind.hh	/^    static constexpr std::uint32_t proc = 8;$/;"	m
 proc	xdrpp/xdrpp/rpcbind.hh	/^    static constexpr std::uint32_t proc = 8;$/;"	m	struct:xdr::RPCBVERS::RPCBPROC3_TADDR2UADDR_t
 proc	xdrpp/xdrpp/rpcbind.hh	/^    static constexpr std::uint32_t proc = 9;$/;"	m	struct:xdr::RPCBVERS4::RPCBPROC_GETVERSADDR_t
 proc_compare	xdrpp/xdrc/parse.cc	/^proc_compare(const void *_a, const void *_b)$/;"	f	file:
-proc_name	include/old_server.hh	/^    static constexpr const char *proc_name = "getCacheContents";$/;"	m	struct:cache_api_v1::getCacheContents_t
-proc_name	include/old_server.hh	/^    static constexpr const char *proc_name = "getCacheServer";$/;"	m	struct:api_v1::getCacheServer_t
-proc_name	include/old_server.hh	/^    static constexpr const char *proc_name = "sendHeartbeat";$/;"	m	struct:api_v1::sendHeartbeat_t
 proc_name	include/server.hh	/^    static constexpr const char *proc_name = "getCacheContents";$/;"	m	struct:cache_api_v1::getCacheContents_t
 proc_name	include/server.hh	/^    static constexpr const char *proc_name = "getCacheServer";$/;"	m	struct:api_v1::getCacheServer_t
 proc_name	include/server.hh	/^    static constexpr const char *proc_name = "newCacheserverAdded";$/;"	m	struct:cache_api_v1::newCacheserverAdded_t
@@ -7164,16 +7150,12 @@ proc_name	xdrpp/xdrpp/rpcbind.hh	/^    static constexpr const char *proc_name = 
 procs	xdrpp/xdrc/xdrc_internal.h	/^  vec<rpc_proc> procs;$/;"	m	struct:rpc_vers
 profile	server/sqlite3.c	/^  void * (*profile)(sqlite3*,void(*)(void*,const char*,sqlite_uint64),void*);$/;"	m	struct:sqlite3_api_routines	file:
 prog_	xdrpp/xdrpp/server.h	/^  const uint32_t prog_;$/;"	m	struct:xdr::service_base
-program	include/old_server.hh	/^  static constexpr std::uint32_t program = 1074036870;$/;"	m	struct:api_v1
-program	include/old_server.hh	/^  static constexpr std::uint32_t program = 2147778694;$/;"	m	struct:cache_api_v1
 program	include/server.hh	/^  static constexpr std::uint32_t program = 1074036870;$/;"	m	struct:api_v1
 program	include/server.hh	/^  static constexpr std::uint32_t program = 2147778694;$/;"	m	struct:cache_api_v1
 program	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr std::uint32_t program = 100000;$/;"	m	struct:xdr::PMAP_VERS
 program	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr std::uint32_t program = 100000;$/;"	m	struct:xdr::RPCBVERS
 program	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr std::uint32_t program = 100000;$/;"	m	struct:xdr::RPCBVERS4
 program_details	xdrpp/missing	/^program_details ()$/;"	f
-program_name	include/old_server.hh	/^  static constexpr const char *program_name = "cache_server_api";$/;"	m	struct:cache_api_v1
-program_name	include/old_server.hh	/^  static constexpr const char *program_name = "server_api";$/;"	m	struct:api_v1
 program_name	include/server.hh	/^  static constexpr const char *program_name = "cache_server_api";$/;"	m	struct:cache_api_v1
 program_name	include/server.hh	/^  static constexpr const char *program_name = "server_api";$/;"	m	struct:api_v1
 program_name	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr const char *program_name = "PMAP_PROG";$/;"	m	struct:xdr::PMAP_VERS
@@ -7224,6 +7206,7 @@ ptrmapPutOvflPtr	server/sqlite3.c	/^static void ptrmapPutOvflPtr(MemPage *pPage,
 ptrmapPutOvflPtr	server/sqlite3.c	53034;"	d	file:
 pushOntoSorter	server/sqlite3.c	/^static void pushOntoSorter($/;"	f	file:
 push_back	xdrpp/xdrc/xdrc_internal.h	/^  T &push_back() { this->emplace_back(); return this->back(); }$/;"	f	struct:vec
+put	cacheserver/lrucache.hh	/^  void put(std::string key, T value) {$/;"	f	class:lru_cache
 put	cacheserver/serverdb.cc	/^ServerDB::put(const string &path, const string &val)$/;"	f	class:ServerDB
 put2byte	server/sqlite3.c	51812;"	d	file:
 put32	xdrpp/xdrpp/marshal.h	/^  static void put32(std::uint32_t *&p, std::uint32_t v) { *p++ = v; }$/;"	f	struct:xdr::marshal_noswap
@@ -7331,6 +7314,7 @@ releasePage	server/sqlite3.c	/^static void releasePage(MemPage *pPage){$/;"	f	fi
 release_memory	server/sqlite3.c	/^  int (*release_memory)(int);$/;"	m	struct:sqlite3_api_routines	file:
 reloadTableSchema	server/sqlite3.c	/^static void reloadTableSchema(Parse *pParse, Table *pTab, const char *zName){$/;"	f	file:
 relocatePage	server/sqlite3.c	/^static int relocatePage($/;"	f	file:
+remove	cacheserver/lrucache.hh	/^  void remove(node* n) {$/;"	f	class:lru_cache
 remove	server/serverdb.cc	/^ServerDB::remove(const string &path)$/;"	f	class:ServerDB
 removeElementGivenHash	server/sqlite3.c	/^static void removeElementGivenHash($/;"	f	file:
 removeFromBlockedList	server/sqlite3.c	/^static void removeFromBlockedList(sqlite3 *db){$/;"	f	file:
@@ -7529,7 +7513,6 @@ sampleIsBetterPost	server/sqlite3.c	/^static int sampleIsBetterPost($/;"	f	file:
 samplePushPrevious	server/sqlite3.c	/^static void samplePushPrevious(Stat4Accum *p, int iChng){$/;"	f	file:
 sampleSetRowid	server/sqlite3.c	/^static void sampleSetRowid(sqlite3 *db, Stat4Sample *p, int n, const u8 *pData){$/;"	f	file:
 sampleSetRowidInt64	server/sqlite3.c	/^static void sampleSetRowidInt64(sqlite3 *db, Stat4Sample *p, i64 iRowid){$/;"	f	file:
-save	include/old_server.hh	/^  save(Archive &ar, const ::heartbeat &obj) {$/;"	f	struct:xdr::xdr_traits
 save	include/server.hh	/^  save(Archive &ar, const ::cacheTransfer &obj) {$/;"	f	struct:xdr::xdr_traits
 save	include/server.hh	/^  save(Archive &ar, const ::heartbeat &obj) {$/;"	f	struct:xdr::xdr_traits
 save	include/server.hh	/^  save(Archive &ar, const ::newCacheServerInfo &obj) {$/;"	f	struct:xdr::xdr_traits
@@ -7600,11 +7583,8 @@ semClose	server/sqlite3.c	/^static int semClose(sqlite3_file *id) {$/;"	f	file:
 semLock	server/sqlite3.c	/^static int semLock(sqlite3_file *id, int eFileLock) {$/;"	f	file:
 semUnlock	server/sqlite3.c	/^static int semUnlock(sqlite3_file *id, int eFileLock) {$/;"	f	file:
 sendCachedData	cacheserver/cacheserverimpl.cc	/^cache_api_v1_server::sendCachedData(std::unique_ptr<cacheTransfer> arg)$/;"	f	class:cache_api_v1_server
-sendCachedData	server/new.cc	/^cache_api_v1_server::sendCachedData(std::unique_ptr<cacheTransfer> arg)$/;"	f	class:cache_api_v1_server
 sendCachedData_t	include/server.hh	/^  struct sendCachedData_t {$/;"	s	struct:cache_api_v1
-sendHeartbeat	server/new.cc	/^api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)$/;"	f	class:api_v1_server
 sendHeartbeat	server/serverimpl.cc	/^api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)$/;"	f	class:api_v1_server
-sendHeartbeat_t	include/old_server.hh	/^  struct sendHeartbeat_t {$/;"	s	struct:api_v1
 sendHeartbeat_t	include/server.hh	/^  struct sendHeartbeat_t {$/;"	s	struct:api_v1
 sendRequest	include/httpclient.cc	/^httpclient::sendRequest(string host, string queryStr)$/;"	f	class:httpclient
 sendreq	xdrpp/tests/srpc.cc	/^sendreq(int fd)$/;"	f
@@ -7653,6 +7633,7 @@ set_cleanup	xdrpp/xdrpp/socket.cc	/^set_cleanup()$/;"	f	namespace:xdr::__anon37
 set_close_on_exec	xdrpp/xdrpp/socket.cc	/^set_close_on_exec(int fd)$/;"	f	namespace:xdr
 set_dir_from	xdrpp/depcomp	/^set_dir_from ()$/;"	f
 set_id	xdrpp/xdrc/xdrc.cc	/^rpc_decl::set_id(const string &nid)$/;"	f	class:rpc_decl
+set_max_size	cacheserver/lrucache.hh	/^  void set_max_size(int size) {$/;"	f	class:lru_cache
 set_nonblock	xdrpp/xdrpp/socket.cc	/^set_nonblock(int fd)$/;"	f	namespace:xdr
 set_status	server/sqlstmt.cc	/^SQLStmt::set_status (int status)$/;"	f	class:SQLStmt
 setrcb	xdrpp/xdrpp/msgsock.h	/^  template<typename T> void setrcb(T &&rcb) {$/;"	f	class:xdr::msg_sock
@@ -9610,6 +9591,7 @@ table_column_metadata	server/sqlite3.c	/^  int  (*table_column_metadata)(sqlite3
 tagid	xdrpp/xdrc/xdrc_internal.h	/^  string tagid;$/;"	m	struct:rpc_union
 tags	xdrpp/xdrc/xdrc_internal.h	/^  vec<rpc_const> tags;$/;"	m	struct:rpc_enum
 tagtype	xdrpp/xdrc/xdrc_internal.h	/^  string tagtype;$/;"	m	struct:rpc_union
+tail	cacheserver/lrucache.hh	/^  node* tail;$/;"	m	class:lru_cache
 tardir	xdrpp/Makefile	/^	tardir=$(distdir) && $(am__tar) | BZIP2=$${BZIP2--9} bzip2 -c >$(distdir).tar.bz2$/;"	m
 tardir	xdrpp/Makefile	/^	tardir=$(distdir) && $(am__tar) | GZIP=$(GZIP_ENV) gzip -c >$(distdir).tar.gz$/;"	m
 tardir	xdrpp/Makefile	/^	tardir=$(distdir) && $(am__tar) | XZ_OPT=$${XZ_OPT--e} xz -c >$(distdir).tar.xz$/;"	m
@@ -10017,16 +9999,12 @@ verifyDbFile	server/sqlite3.c	/^static void verifyDbFile(unixFile *pFile){$/;"	f
 vers	xdrpp/xdrc/xdrc_internal.h	/^  vec<rpc_vers> vers;$/;"	m	struct:rpc_program
 vers_	xdrpp/xdrpp/server.h	/^  const uint32_t vers_;$/;"	m	struct:xdr::service_base
 vers_compare	xdrpp/xdrc/parse.cc	/^vers_compare(const void *_a, const void *_b)$/;"	f	file:
-version	include/old_server.hh	/^  static constexpr std::uint32_t version = 1;$/;"	m	struct:api_v1
-version	include/old_server.hh	/^  static constexpr std::uint32_t version = 1;$/;"	m	struct:cache_api_v1
 version	include/server.hh	/^  static constexpr std::uint32_t version = 1;$/;"	m	struct:api_v1
 version	include/server.hh	/^  static constexpr std::uint32_t version = 1;$/;"	m	struct:cache_api_v1
 version	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr std::uint32_t version = 2;$/;"	m	struct:xdr::PMAP_VERS
 version	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr std::uint32_t version = 3;$/;"	m	struct:xdr::RPCBVERS
 version	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr std::uint32_t version = 4;$/;"	m	struct:xdr::RPCBVERS4
 versionFunc	server/sqlite3.c	/^static void versionFunc($/;"	f	file:
-version_name	include/old_server.hh	/^  static constexpr const char *version_name = "api_v1";$/;"	m	struct:api_v1
-version_name	include/old_server.hh	/^  static constexpr const char *version_name = "cache_api_v1";$/;"	m	struct:cache_api_v1
 version_name	include/server.hh	/^  static constexpr const char *version_name = "api_v1";$/;"	m	struct:api_v1
 version_name	include/server.hh	/^  static constexpr const char *version_name = "cache_api_v1";$/;"	m	struct:cache_api_v1
 version_name	xdrpp/xdrpp/rpcbind.hh	/^  static constexpr const char *version_name = "PMAP_VERS";$/;"	m	struct:xdr::PMAP_VERS
@@ -10556,7 +10534,6 @@ xWrite	server/sqlite3.h	/^  int (*xWrite)(sqlite3_file*, const void*, int iAmt, 
 xarray	xdrpp/xdrpp/types.h	/^  xarray() { array::fill(T{}); }$/;"	f	struct:xdr::xarray
 xarray	xdrpp/xdrpp/types.h	/^  xarray(detail::no_clear_t) {}$/;"	f	struct:xdr::xarray
 xarray	xdrpp/xdrpp/types.h	/^template<typename T, uint32_t N> struct xarray$/;"	s	namespace:xdr
-xdr	include/old_server.hh	/^namespace xdr {$/;"	n
 xdr	include/server.hh	/^namespace xdr {$/;"	n
 xdr	xdrpp/xdrpp/cereal.h	/^namespace xdr {$/;"	n
 xdr	xdrpp/xdrpp/clear.h	/^namespace xdr {$/;"	n
@@ -10624,7 +10601,6 @@ xdr_to_msg	xdrpp/xdrpp/marshal.h	/^xdr_to_msg(const Args &...args)$/;"	f	namespa
 xdr_to_string	xdrpp/xdrpp/printer.h	/^xdr_to_string(const T &t, const char *name = nullptr, int indent = 0)$/;"	f	namespace:xdr
 xdr_trace_client	xdrpp/xdrpp/srpc.cc	/^bool xdr_trace_client = std::getenv("XDR_TRACE_CLIENT");$/;"	m	namespace:xdr	file:
 xdr_trace_server	xdrpp/xdrpp/server.cc	/^bool xdr_trace_server = std::getenv("XDR_TRACE_SERVER");$/;"	m	namespace:xdr	file:
-xdr_traits	include/old_server.hh	/^template<> struct xdr_traits<::heartbeat>$/;"	s	namespace:xdr
 xdr_traits	include/server.hh	/^template<> struct xdr_traits<::cacheTransfer>$/;"	s	namespace:xdr
 xdr_traits	include/server.hh	/^template<> struct xdr_traits<::heartbeat>$/;"	s	namespace:xdr
 xdr_traits	include/server.hh	/^template<> struct xdr_traits<::newCacheServerInfo>$/;"	s	namespace:xdr
@@ -11006,6 +10982,7 @@ zeroblobFunc	server/sqlite3.c	/^static void zeroblobFunc($/;"	f	file:
 ~_body_t	xdrpp/xdrpp/rpc_msg.hh	/^    ~_body_t() { _xdr_with_mem_ptr(xdr::field_destructor, mtype_, *this); }$/;"	f	struct:xdr::rpc_msg::_body_t
 ~_reply_data_t	xdrpp/xdrpp/rpc_msg.hh	/^    ~_reply_data_t() { _xdr_with_mem_ptr(xdr::field_destructor, stat_, *this); }$/;"	f	struct:xdr::accepted_reply::_reply_data_t
 ~fd_state	xdrpp/xdrpp/pollset.cc	/^pollset::fd_state::~fd_state()$/;"	f	class:xdr::pollset::fd_state
+~lru_cache	cacheserver/lrucache.hh	/^  ~lru_cache() {$/;"	f	class:lru_cache
 ~msg_sock	xdrpp/xdrpp/msgsock.cc	/^msg_sock::~msg_sock()$/;"	f	class:xdr::msg_sock
 ~pollset_plus	xdrpp/xdrpp/pollset.cc	/^pollset_plus::~pollset_plus()$/;"	f	class:xdr::pollset_plus
 ~rejected_reply	xdrpp/xdrpp/rpc_msg.hh	/^  ~rejected_reply() { _xdr_with_mem_ptr(xdr::field_destructor, stat_, *this); }$/;"	f	struct:xdr::rejected_reply

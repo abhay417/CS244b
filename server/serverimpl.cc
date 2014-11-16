@@ -26,10 +26,10 @@ api_v1_server::removeTimedOutServers(uint128_t curr_nsec)
       serversToRemove.push_back(i->first);
     }
     
-    cout << (uint64_t) (timeout_nsec > 64)
+    /*cout << (uint64_t) (timeout_nsec > 64)
          << (uint64_t) timeout_nsec << " "
          << (uint64_t) (curr_nsec > 64)
-         << (uint64_t) curr_nsec << endl;
+         << (uint64_t) curr_nsec << endl;*/
   }
 
   for (int i = 0; i < serversToRemove.size(); i++) {
@@ -59,7 +59,7 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
     //This node is already in the ring
     //Update the timestamp of the heatbeat
     _currServers[ip] = curr_nsec;
-    cout << "Server already member of the ring." << 
+    cout << "Server '" << ip << "' already member of the ring. " << 
             "Only updating timestamp" << endl;
     removeTimedOutServers(curr_nsec);
     return;
@@ -69,12 +69,13 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
   vector<uint128_t> nodeDigests = getVirtualNodeDigests(ip);
   for (int i = 0; i < nodeDigests.size(); i++) {
     _ring[nodeDigests[i]] = ip;
-    cout << "Added server to ring." << endl;
+    cout << "Added virtual node of server '" << ip
+         << "' to ring." << endl;
   }
   
   //And add it to the _currentServers
   _currServers[ip] = curr_nsec;
-  cout << "Adding server timestamp" << endl;
+  cout << "Adding timestamp for server '" << ip << "'" << endl;
 
   //Remove all servers that we have not heard back from
   removeTimedOutServers(curr_nsec);
