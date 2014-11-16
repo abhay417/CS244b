@@ -83,12 +83,18 @@ Client::getCacheContents(const string& cacheHost,
   
   auto fd = tcp_connect(cacheHost.c_str(), UNIQUE_CACHESERVER_PORT);
   auto cclient = new srpc_client<cache_api_v1>{fd.release()};
-
   auto res = cclient->getCacheContents(urlStr);
-  string ret = *res;
+
+  string ret;
+  ret.resize(res->size());
+  //XXX: For now we return a string
+  //     We may be able to use memcpy here
+  for (int i = 0; i < res->size(); i++) {
+    ret += (*res)[i];
+  }
   cout << ret << endl;
 
+  //deleting the client will terminate the connection
   delete cclient;
-
   return ret;
 }

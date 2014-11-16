@@ -3,7 +3,8 @@ SERVER_SRC := server/server.cc \
 			  server/serverimpl.cc \
 			  server/serverdb.cc \
 			  server/sqlstmt.cc \
-			  server/sqlite3.c
+			  server/sqlite3.c \
+        include/helpers.cc
 
 SERVER_OBJ := $(SERVER_SRC:.c=.o)
 SERVER_OBJ := $(SERVER_OBJ:.cc=.o)

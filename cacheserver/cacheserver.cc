@@ -10,6 +10,10 @@
 #include "cacheserverimpl.hh"
 //pthreads
 #include <pthread.h>
+#include <vector>
+#include <map>
+#include "include/helpers.hh"
+
 
 using namespace std;
 using namespace xdr;
@@ -43,6 +47,17 @@ void* heartbeat_loop(void * val)
 
 int main(int argc, const char *argv[])
 {
+    /*
+    uint128_t digest;
+    getMD5Digest("abhay", &digest);
+    map<uint128_t, vector<uint8_t>> test;
+    if (test.find(digest) == test.end()) {
+      cout << "Nothing in map" << endl;
+    } else {
+      cout << "Value found in map" << endl;
+    }*/
+    
+
     if (argc != 2) {
       cout << "Usage: cacheserver MasterIP" << endl;
       return 0;

@@ -6,12 +6,11 @@
 #define __XDR_SERVER_SERVERIMPL_HH_INCLUDED__ 1
 
 #include "include/server.hh"
+#include "include/helpers.hh"
 
 #include <string>
 #include <map>
 #include <iostream>
-#include <time.h>
-#include <openssl/md5.h>
 
 using namespace std;
 
@@ -24,7 +23,6 @@ const char * const VirtualNodeSuffix[] = {
   "node1", "node2", "node3", "node4"
 };
 
-typedef unsigned int uint128_t __attribute__((mode(TI)));
 typedef map<uint128_t, string> Hashring;
 
 class api_v1_server {

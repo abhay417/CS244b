@@ -3,15 +3,6 @@
 
 #include "server/serverimpl.hh"
 
-
-static void
-getMD5Digest(const string& str, uint128_t* digest) 
-{
-  MD5(reinterpret_cast<const unsigned char *>(str.c_str()),
-      str.length(),
-      reinterpret_cast<unsigned char *>(digest));
-}
-
 static vector<uint128_t>
 getVirtualNodeDigests(const string& ip)
 {
@@ -23,14 +14,6 @@ getVirtualNodeDigests(const string& ip)
     digestVector.push_back(digest);
   }
   return digestVector;
-}
-
-static uint128_t
-getMonotonicNsec() {
-  struct timespec ts;
-  clock_gettime(CLOCK_MONOTONIC, &ts);
-  uint128_t nsec = ts.tv_sec * 1000000000 + ts.tv_nsec;
-  return nsec;
 }
 
 void

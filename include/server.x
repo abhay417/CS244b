@@ -1,9 +1,26 @@
 typedef string longstring<>;
+//typedef longstring vectorstring<>; 
 typedef opaque bytestream<>;
 
 struct heartbeat {
 	longstring nodeIP;
+  //int capacity;
 	int timeStamp;
+};
+
+struct newCacheServerInfo {
+  int64_t fromLow;
+  int64_t fromHigh;
+  int64_t toLow;
+  int64_t toHigh;
+  longstring newNodeIP;
+};
+
+struct cacheTransfer {
+  int64_t lowDigest;
+  int64_t highDigest;
+  bytestream cacheData;
+  longstring sourceNodeIP;
 };
 
 program server_api {
@@ -15,7 +32,9 @@ program server_api {
 
 program cache_server_api {
   version cache_api_v1 {
-    longstring getCacheContents(longstring) = 1;
+    bytestream getCacheContents(longstring) = 1;
+    void newCacheserverAdded(newCacheServerInfo) = 2;
+    void sendCachedData(cacheTransfer) = 3;
   } = 1;
 } = 0x80048086;
 
