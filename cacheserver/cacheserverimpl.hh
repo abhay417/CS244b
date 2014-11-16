@@ -8,12 +8,15 @@
 #include "include/server.hh"
 #include "include/helpers.hh"
 #include "include/httpclient.hh"
+#include "lrucache.hh"
 
 #include <map>
+=======
 
 class cache_api_v1_server {
 private:
   map<uint128_t, vector<uint8_t>> _cacheStore;
+  lru_cache<cache_data> cache;
     
 public:
   using rpc_interface_type = cache_api_v1;

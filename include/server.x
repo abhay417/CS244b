@@ -1,5 +1,4 @@
 typedef string longstring<>;
-//typedef longstring vectorstring<>; 
 typedef opaque bytestream<>;
 
 struct heartbeat {
