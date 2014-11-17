@@ -13,6 +13,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace xdr;
 
 #define HASHRING_TIMEOUT 3000000000
 #define NUM_VIRTUAL_NODES 4

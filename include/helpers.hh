@@ -5,6 +5,7 @@
 #include <time.h>
 #include <openssl/md5.h>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -14,5 +15,6 @@ uint128_t combineLowHigh(uint64_t low, uint64_t high);
 uint128_t getMonotonicNsec();
 void getMD5Digest(const string& str, uint128_t* digest);
 string getOwnAddress();
+void printUint128(uint128_t num);
 
 #endif

@@ -4,7 +4,8 @@ uint128_t
 combineLowHigh(uint64_t low,
                uint64_t high)
 {
-  uint128_t res = high << 64;
+  uint128_t res = high;
+  res = res << 64;
   res +=  low;
   return res;
 }
@@ -32,4 +33,12 @@ getOwnAddress()
   char buffer[256];
   gethostname(buffer, 256);
   return string(buffer);
+}
+
+void
+printUint128(uint128_t num)
+{
+  uint64_t low = (uint64_t) num;
+  uint64_t high = (uint64_t) (num >> 64);
+  cout << hex << high << " " << hex << low << endl;
 }

@@ -85,6 +85,10 @@ cache_api_v1_server::newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg
   uint128_t digestTo = combineLowHigh(arg->toLow, arg->toHigh); 
   string newServer = arg->newNodeIP;
 
+  //printUint128(digestFrom);
+  //printUint128(digestTo);
+  //cout << "'digestFrom <= digestTo': " << (digestFrom <= digestTo) << endl; 
+
   //Create connection to the newServer and transfer relevant contents
   cout << "Sending cached data to " << newServer << endl;
 
@@ -100,6 +104,9 @@ cache_api_v1_server::newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg
     cout << "No cached data to send to " << newServer << endl;
     return;
   }
+  
+  //cout << "Num cached data to transfer to " << newServer << ": "
+  //     << digestsToTransfer.size() << endl;
 
   //Transfer the contents
   auto fd = tcp_connect(newServer.c_str(), UNIQUE_CACHESERVER_PORT);
@@ -112,7 +119,7 @@ cache_api_v1_server::newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg
     ct.highDigest = digest >> 64;
     ct.sourceNodeIP = getOwnAddress();
     ct.cacheData.resize(cachedData.size());
-    for (int j = 0; j < cachedData.size(); i++) {
+    for (int j = 0; j < cachedData.size(); j++) {
       ct.cacheData.push_back(cachedData[j]);
     }  
     cclient->sendCachedData(ct);

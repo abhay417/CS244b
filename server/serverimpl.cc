@@ -2,6 +2,10 @@
 // Edit to add functionality.
 
 #include "server/serverimpl.hh"
+#include <xdrpp/srpc.h>
+#include <xdrpp/rpcbind.hh>
+#include <xdrpp/socket.h>
+#include "include/rpcconfig.h"
 
 static vector<uint128_t>
 getVirtualNodeDigests(const string& ip)
@@ -25,11 +29,6 @@ api_v1_server::removeTimedOutServers(uint128_t curr_nsec)
     if (timeout_nsec < curr_nsec) {
       serversToRemove.push_back(i->first);
     }
-    
-    /*cout << (uint64_t) (timeout_nsec > 64)
-         << (uint64_t) timeout_nsec << " "
-         << (uint64_t) (curr_nsec > 64)
-         << (uint64_t) curr_nsec << endl;*/
   }
 
   for (int i = 0; i < serversToRemove.size(); i++) {
@@ -59,8 +58,8 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
     //This node is already in the ring
     //Update the timestamp of the heatbeat
     _currServers[ip] = curr_nsec;
-    cout << "Server '" << ip << "' already member of the ring. " << 
-            "Only updating timestamp" << endl;
+    //cout << "Server '" << ip << "' already member of the ring. " << 
+    //        "Only updating timestamp" << endl;
     removeTimedOutServers(curr_nsec);
     return;
   }
@@ -71,6 +70,7 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
     _ring[nodeDigests[i]] = ip;
     cout << "Added virtual node of server '" << ip
          << "' to ring." << endl;
+    //printUint128(nodeDigests[i]);
   }
   
   //And add it to the _currentServers
@@ -79,6 +79,43 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
 
   //Remove all servers that we have not heard back from
   removeTimedOutServers(curr_nsec);
+  
+  //Send cacheTransfer message to the other servers
+  for (int i = 0; i < nodeDigests.size(); i++) {
+    //Create the cacheServerInfo
+    uint128_t fromDigest = nodeDigests[i];
+    auto nextServerInRing = _ring.find(fromDigest);
+    nextServerInRing++;
+
+    
+    if (nextServerInRing == _ring.end() ||
+        nextServerInRing->second == ip) {
+      continue;
+    }
+
+    cout << "New server: " << ip << " Next server: "<< nextServerInRing->second << endl;
+
+    uint128_t toDigest = nextServerInRing->first;
+    newCacheServerInfo nsInfo;
+    nsInfo.fromLow = (uint64_t) fromDigest;
+    nsInfo.fromHigh = fromDigest >> 64;
+    nsInfo.toLow = (uint64_t)toDigest;
+    nsInfo.toHigh = toDigest >> 64;
+    nsInfo.newNodeIP = ip;
+    
+    
+    //Create the client 
+    auto fd = tcp_connect(nextServerInRing->second.c_str(),
+                          UNIQUE_CACHESERVER_PORT);
+    auto cclient = new srpc_client<cache_api_v1>{fd.release()};
+    cclient->newCacheserverAdded(nsInfo);
+  }
+
+  cout<<"Printing ring" << endl;
+  for(auto i = _ring.begin(); i != _ring.end(); i++) {
+    printUint128(i->first);
+    cout << i->second << endl;
+  }
 }
   
 

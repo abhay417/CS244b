@@ -41,6 +41,17 @@ void* heartbeat_loop(void * val)
 
 int main(int argc, const char *argv[])
 {
+  /*Testing uint128_t conversions
+  uint64_t low = 0xFEDCBA;
+  uint64_t high = 0xABCDEF;
+  uint128_t comb = combineLowHigh(low, high);
+  printUint128(comb);
+  uint64_t low2 = (uint64_t) comb;
+  uint64_t high2 = (uint64_t) (comb >> 64);
+  uint128_t comb2 = combineLowHigh(low2, high2);
+  printUint128(comb2);
+  */
+
   /*
   Testing cacheStore map
   int128_t digest;
