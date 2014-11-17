@@ -40,6 +40,7 @@ clean:
 	rm -f server/server
 	rm -f cacheserver/cacheserver
 	rm -f server/*.o
+	rm -f include/*.o
 	rm -f cacheserver/*.o
 	rm -f libclient/*.o
 	rm -f libclient/libclient.a

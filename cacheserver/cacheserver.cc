@@ -19,13 +19,6 @@
 using namespace std;
 using namespace xdr;
 
-string GetOwnIP()
-{
-  //XXX: Add code to return own IP address as a string
-  char buffer[256];
-  gethostname(buffer, 256);
-  return string(buffer);
-}
 
 #define HEARTBEAT_INTERVAL 1
 //This function sends HB to the masterServer
@@ -37,7 +30,7 @@ void* heartbeat_loop(void * val)
   auto client = new srpc_client<api_v1>{fd.release()};
 
   heartbeat hb;
-  hb.nodeIP = GetOwnIP();
+  hb.nodeIP = getOwnAddress();
   hb.timeStamp = 0;
  
   while (true) {

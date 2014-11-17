@@ -2,8 +2,15 @@
 // Edit to add functionality.
 
 #include "cacheserverimpl.hh"
+#include "include/server.hh"
+#include <unistd.h>
+#include <sys/socket.h>
+#include <xdrpp/srpc.h>
+#include <xdrpp/rpcbind.hh>
+#include <xdrpp/socket.h>
 
 using namespace std;
+using namespace xdr;
 
 std::unique_ptr<bytestream>
 cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)
@@ -79,7 +86,43 @@ cache_api_v1_server::newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg
   string newServer = arg->newNodeIP;
 
   //Create connection to the newServer and transfer relevant contents
-  cout << "Sending cached data to " << newServer << endl; 
+  cout << "Sending cached data to " << newServer << endl;
+
+  //Get all the digest values that need to be sent
+  vector<uint128_t> digestsToTransfer;
+  for (auto i = _cacheStore.begin(); i != _cacheStore.end(); i++) {
+    if (i->first >= digestFrom && i->first < digestTo) {
+      digestsToTransfer.push_back(i->first);
+    }
+  }
+
+  if (digestsToTransfer.empty()) {
+    cout << "No cached data to send to " << newServer << endl;
+    return;
+  }
+
+  //Transfer the contents
+  auto fd = tcp_connect(newServer.c_str(), UNIQUE_CACHESERVER_PORT);
+  auto cclient = new srpc_client<cache_api_v1>{fd.release()};
+  for (int i = 0; i < digestsToTransfer.size(); i++) {
+    uint128_t digest = digestsToTransfer[i];
+    vector<uint8_t>& cachedData = _cacheStore[digest];
+    cacheTransfer ct;
+    ct.lowDigest = digest;
+    ct.highDigest = digest >> 64;
+    ct.sourceNodeIP = getOwnAddress();
+    ct.cacheData.resize(cachedData.size());
+    for (int j = 0; j < cachedData.size(); i++) {
+      ct.cacheData.push_back(cachedData[j]);
+    }  
+    cclient->sendCachedData(ct);
+    cout << "Cached data sent to " << newServer << endl;
+  }
+
+  //Remove the sent cached contents from _cacheStore
+  for (int i = 0; i < digestsToTransfer.size(); i++) {
+    _cacheStore.erase(digestsToTransfer[i]);
+  }
    
 }
 

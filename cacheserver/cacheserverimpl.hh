@@ -6,6 +6,7 @@
 #define __XDR_SERVER_CACHESERVER_HH_INCLUDED__ 1
 
 #include "include/server.hh"
+#include "include/rpcconfig.h"
 #include "include/helpers.hh"
 #include "include/httpclient.hh"
 #include "lrucache.hh"

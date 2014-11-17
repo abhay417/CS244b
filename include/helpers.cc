@@ -25,3 +25,11 @@ getMonotonicNsec() {
   return nsec;
 }
 
+string
+getOwnAddress()
+{
+  //XXX: Add code to return own IP address as a string
+  char buffer[256];
+  gethostname(buffer, 256);
+  return string(buffer);
+}
