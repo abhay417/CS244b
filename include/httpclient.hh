@@ -16,10 +16,19 @@ using namespace std;
 
 class httpclient {
 private:
-	int open_socketfd(const string& hostname, const string& port, int flags,
-                    int (*func)(int, const struct sockaddr*, socklen_t));
+  bool _initialized;
+  int _socket;
+  string _host;
+	void open_socketfd(const string& hostname,
+                     const string& port,
+                     int flags,
+                     int (*func)(int, const struct sockaddr*, socklen_t));
 public:
-	vector<uint8_t> sendRequest(string host, string queryStr);
+  httpclient(string host);
+  ~httpclient();
+	vector<uint8_t> sendRequest(string queryStr,
+                              int &headerSize,
+                              bool getRequest = true);
 };
 
 #endif

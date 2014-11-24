@@ -14,7 +14,8 @@
 #include <vector>
 #include <map>
 #include "include/helpers.hh"
-
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace xdr;
@@ -41,6 +42,24 @@ void* heartbeat_loop(void * val)
 
 int main(int argc, const char *argv[])
 {
+  /*//HTTP client test
+  int headSize;
+  httpclient webclient("i.imgur.com");
+  vector<uint8_t> httpContent = webclient.sendRequest("/R6u2kaI.png",
+                                                      headSize);
+  //print the header
+  for (int i = 0; i < headSize; i++) {
+    cout << (char) httpContent[i];
+  }
+  //create a test file for the content
+  ofstream myFile;
+  myFile.open("testFile");
+  for (int i = headSize; i < httpContent.size(); i++) {
+    myFile << httpContent[i];
+  }
+  myFile.close();
+  */
+
   /*Testing uint128_t conversions
   uint64_t low = 0xFEDCBA;
   uint64_t high = 0xABCDEF;

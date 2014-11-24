@@ -28,8 +28,9 @@ cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)
     string host = url.substr(0, firstSlashInd);
     string querystr = url.substr(firstSlashInd);
     cout << "host: " << host << " querystr: " << querystr << endl;
-    httpclient webclient;
-    vector<uint8_t> httpContent = webclient.sendRequest(host, querystr);
+    httpclient webclient(host);
+    int headSize;
+    vector<uint8_t> httpContent = webclient.sendRequest(querystr, headSize);
 
     //Cache it
     _cacheStore[urlDigest] = httpContent;
