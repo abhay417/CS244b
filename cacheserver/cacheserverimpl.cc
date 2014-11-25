@@ -3,6 +3,7 @@
 
 #include "cacheserverimpl.hh"
 #include "include/server.hh"
+#include "include/rpcconfig.h"
 #include <unistd.h>
 #include <sys/socket.h>
 #include <xdrpp/srpc.h>
@@ -20,6 +21,7 @@ cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)
   //First check if the URL content is already in our cache
   uint128_t urlDigest;
   getMD5Digest(url, &urlDigest);
+  httpclient statsclient("localhost", UNIQUE_STATSSERVER_PORT);
   if (_cacheStore.find(urlDigest) == _cacheStore.end()) {
     cout << "Content not in cache so fetching from the origin server" << endl;
     //URL content is not already cached
@@ -28,12 +30,16 @@ cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)
     string host = url.substr(0, firstSlashInd);
     string querystr = url.substr(firstSlashInd);
     cout << "host: " << host << " querystr: " << querystr << endl;
-    httpclient webclient(host);
+    httpclient webclient(host, "80");
     int headSize;
     vector<uint8_t> httpContent = webclient.sendRequest(querystr, headSize);
-
+    int statsHeadSize;
+    statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);
     //Cache it
     _cacheStore[urlDigest] = httpContent;
+  } else {
+    int statsHeadSize;
+    statsclient.sendRequest("/statsServer?q=cacheHit", statsHeadSize);
   }
 
   //Return the content

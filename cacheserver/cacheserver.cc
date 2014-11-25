@@ -44,7 +44,7 @@ int main(int argc, const char *argv[])
 {
   /*//HTTP client test
   int headSize;
-  httpclient webclient("i.imgur.com");
+  httpclient webclient("i.imgur.com","80");
   vector<uint8_t> httpContent = webclient.sendRequest("/R6u2kaI.png",
                                                       headSize);
   //print the header
@@ -105,6 +105,10 @@ int main(int argc, const char *argv[])
   cout << cache << endl;
   return 0;
   */
+
+/*  httpclient statsclient("localhost", UNIQUE_STATSSERVER_PORT);
+  int statsHeadSize;
+  statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);*/
 
   if (argc != 2) {
     cout << "Usage: cacheserver MasterIP" << endl;

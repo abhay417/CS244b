@@ -25,6 +25,7 @@ private:
                      int (*func)(int, const struct sockaddr*, socklen_t));
 public:
   httpclient(string host);
+  httpclient(string host, string port);
   ~httpclient();
 	vector<uint8_t> sendRequest(string queryStr,
                               int &headerSize,

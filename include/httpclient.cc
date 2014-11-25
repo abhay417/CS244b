@@ -48,7 +48,7 @@ httpclient::open_socketfd(const string& hostname,
 	_initialized = true;
 }
 
-httpclient::httpclient(string host): _socket(0), _initialized(false)
+httpclient::httpclient(string host, string port): _socket(0), _initialized(false)
 {
   //Remove http:// if passed
   string httpPrefix("http://");
@@ -61,7 +61,7 @@ httpclient::httpclient(string host): _socket(0), _initialized(false)
 
   //Port
   //XXX: Read the port from the host string
-  string port("80");
+  // string port("80");
 
   //Connect to the server 
   open_socketfd(host, port, AI_V4MAPPED, &connect);
