@@ -21,7 +21,7 @@ cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)
   //First check if the URL content is already in our cache
   uint128_t urlDigest;
   getMD5Digest(url, &urlDigest);
-  httpclient statsclient("localhost", UNIQUE_STATSSERVER_PORT);
+  httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
   if (_cacheStore.find(urlDigest) == _cacheStore.end()) {
     cout << "Content not in cache so fetching from the origin server" << endl;
     //URL content is not already cached
@@ -33,13 +33,17 @@ cache_api_v1_server::getCacheContents(std::unique_ptr<longstring> arg)
     httpclient webclient(host, "80");
     int headSize;
     vector<uint8_t> httpContent = webclient.sendRequest(querystr, headSize);
-    int statsHeadSize;
-    statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);
+    if (USE_STATSSERVER) {
+      int statsHeadSize;
+      statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);
+    }
     //Cache it
     _cacheStore[urlDigest] = httpContent;
   } else {
-    int statsHeadSize;
-    statsclient.sendRequest("/statsServer?q=cacheHit", statsHeadSize);
+    if (USE_STATSSERVER) {
+      int statsHeadSize;
+      statsclient.sendRequest("/statsServer?q=cacheHit", statsHeadSize);
+    }
   }
 
   //Return the content
