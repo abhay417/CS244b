@@ -1,4 +1,6 @@
+#include "helpers.hh"
 #include "httpclient.hh"
+
 
 using namespace std;
 
@@ -103,23 +105,11 @@ httpclient::sendRequest(string queryStr,
 
   //Read the header first that is until we encounter a \r\n\r\n
   string responseHeader;
-  n = recv(_socket, buf, 4, 0);
-  if (n != 4) {
-    cerr << "Failed to recv data" << endl;
+  if (!getHttpHeader(_socket, responseHeader)) {
+    cerr << "Failed to get HTTP header" << endl;
     return response;
   }
-  headerSize += 4;
-  responseHeader.insert(0, (const char*) buf, 4);
-  while (responseHeader.substr(responseHeader.length() - 4, 4) != "\r\n\r\n") {
-    n = recv (_socket, buf, 1, 0);
-    if (n != 1) {
-      cerr << "Failed to recv data" << endl;
-      return response;
-    }
-    responseHeader += buf[0];
-    headerSize++;
-  }
-
+  
   //Get the content length
   string cLenStr("Content-Length:");
   size_t cLenIndEnd = responseHeader.find(cLenStr) + cLenStr.length();
@@ -134,13 +124,13 @@ httpclient::sendRequest(string queryStr,
   //     << totalBytesReceived << " "
   //     << responseHeader.size() << endl; 
 
-  //Copy the header to resonse
+  //Copy the header to resPonse
   response.reserve(responseHeader.size());
   response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
                   (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
 
   if (!getRequest) {
-    //Return the reponse header for head request
+    //Return the response header for head request
     return response;
   }
 

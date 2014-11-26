@@ -26,6 +26,34 @@ getMonotonicNsec() {
   return nsec;
 }
 
+bool
+getHttpHeader(int socket,
+              string& header)
+{
+	//Get the first 4 bytes
+	char buf[4];
+	int n = recv(socket, buf, 4, 0);
+	if (n != 4) {
+		//XXX: Is it better to fail or to loop here?
+		cerr << "Failed to recv data." << endl;
+		return false;
+	}
+	header.insert(0, buf, 4);
+	
+	//Loop until we get the CRLFCRLF that signals the end
+	//of the header
+	while (header.substr(header.length() - 4, 4) != "\r\n\r\n") {
+		n = recv (socket, buf, 1, 0);
+		if (n != 1) {
+		  cerr << "Failed to recv data" << endl;
+		  return false;
+		}
+		header += buf[0];
+	}
+	
+	return true;
+}
+
 string
 getOwnAddress()
 {

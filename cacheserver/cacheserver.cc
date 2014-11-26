@@ -9,7 +9,6 @@
 
 #include "cacheserverimpl.hh"
 //#include "lrucache.hh"
-//pthreads
 #include <pthread.h>
 #include <vector>
 #include <map>
@@ -132,6 +131,7 @@ int main(int argc, const char *argv[])
       cerr << e.what() << endl;
   }
 
+  pthread_join(heartbeat_thread, NULL);
   return 0;
 }
 
