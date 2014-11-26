@@ -1,7 +1,39 @@
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+import time
+import threading
+import os
+import sys
+import signal
+
+GetCurrentTime = lambda: int(round(time.time()))
 
 PORT_NUMBER = 4006
+timeWindowSeconds = 5
+startTimeSeconds = GetCurrentTime()
+aggregatedStats = []
+bucket = []
+active = True
+
+def AggregateBucket():
+	global bucket
+	oldBucket = bucket[:]
+	#bucket = []
+	count = 0
+	for stat in oldBucket:
+		count += 1
+	return count
+
+def AggregationLoop():
+	global bucket
+	global aggregateStats
+	while(active):
+		time.sleep(timeWindowSeconds)
+		aggregatedStats.append(AggregateBucket())
+		print aggregatedStats[-1]
+	print "Shutting down Aggregation Loop"
+	sys.exit()
+		
 
 #Parts of this borrowed from online example
 
@@ -23,6 +55,7 @@ class StatsHandler(BaseHTTPRequestHandler):
 	
 	#Handler for the GET requests
 	def do_GET(self):
+		global bucket
 		if len(self.path.split('?q=')) == 1:
 			self.wfile.write("Malformed query string")
 			return
@@ -36,10 +69,15 @@ class StatsHandler(BaseHTTPRequestHandler):
 		self.send_response(200)
 		self.send_header('Content-type','text/html')
 		self.end_headers()
+		bucket.append(stat)
+		print len(bucket)
 		# Send the html message
 		# print stat
 		self.wfile.write(str(stat))
 		return
+
+aggregationThread = threading.Thread(target=AggregationLoop)
+aggregationThread.start()
 
 try:
 	#Create a web server and define the handler to manage the
@@ -52,4 +90,5 @@ try:
 
 except KeyboardInterrupt:
 	print '^C received, shutting down the stats server'
+	active = False
 	server.socket.close()
