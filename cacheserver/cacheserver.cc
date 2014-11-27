@@ -8,7 +8,7 @@
 #include "include/rpcconfig.h"
 
 #include "cacheserverimpl.hh"
-//#include "lrucache.hh"
+#include "lrucache.hh"
 #include <pthread.h>
 #include <vector>
 #include <map>
@@ -83,27 +83,33 @@ int main(int argc, const char *argv[])
   */
     
   /* LRU test code that I just stuck in this main function
-   * because I'm lazy.
-  lru_cache<int> cache(3);
+   * because I'm lazy. */
+  /*lru_cache<int> cache(3);
   cout << cache << endl;
-  cache.put("a", 1);
+  cache.put(1, 1);
   cout << cache << endl;
-  cache.put("b", 2);
+  cache.put(2, 2);
   cout << cache << endl;
-  cache.put("c", 3);
+  cache.put(3, 3);
   cout << cache << endl;
-  cache.put("d", 4);
+  cache.put(4, 4);
   cout << cache << endl;
-  cache.put("e", 5);
+  cache.put(5, 5);
   cout << cache << endl;
-  cache.get("c");
+  cache.get(3);
   cout << cache << endl;
-  cache.get("e");
+  cache.get(5);
   cout << cache << endl;
-  cache.put("f", 6);
+  cache.put(6, 6);
   cout << cache << endl;
-  return 0;
-  */
+  cache.erase(5);
+  cout << cache << endl;
+
+  for (auto it = cache.begin(); it != cache.end(); it++) {
+    cout << (int) (it->digest) << endl;
+  }
+  
+  return 0;*/
 
 /*  httpclient statsclient("localhost", UNIQUE_STATSSERVER_PORT);
   int statsHeadSize;

@@ -3,14 +3,21 @@
 
 #include <iostream>
 #include <cstring>
-#include <unordered_map>
+#include <map>
 #include "include/server.hh"
+#include "include/helpers.hh"
 
 // All defined here to avoid template shenanigans
 
 template <typename T>
+class lru_cache_iter;
+
+template <typename T>
 class lru_cache {
 public:
+
+  friend class lru_cache_iter<T>;
+
   lru_cache(int max_size = 10) {
     this->max_size = max_size;
     head = NULL;
@@ -25,39 +32,58 @@ public:
     }
   }
 
+  int size() {
+    return cache.size();
+  }
+
   void set_max_size(int size) {
     max_size = size;
   }
 
-  T get(std::string key) {
-    node* n = cache.at(key);
+  T & get(uint128_t digest) {
+    node* n = cache.at(digest);
     remove(n);
     insert_head(n);
     return n->data;
   }
 
-  void put(std::string key, T value) {
+  void put(uint128_t digest, T value) {
     if (cache.size() == max_size) {
       evict();
     }
-    std::cout << cache.size() << " " << max_size << std::endl;
     node* n;
-    if (contains(key)) {
-      n = cache[key];
+    if (contains(digest)) {
+      n = cache[digest];
       remove(n);
     } else {
-      n = new node(key, value);
-      cache[key] = n;
+      n = new node(digest, value);
+      cache[digest] = n;
     }
     insert_head(n);
   }
 
-  bool contains(std::string key) {
-    return cache.find(key) != cache.end();
+  void erase(uint128_t digest) {
+    node* removed = cache[digest];
+    cache.erase(digest);
+    if (removed->next) {
+      removed->next->prev = removed->prev;
+    } else {
+      tail = removed->prev;
+    }
+    if (removed->prev) {
+      removed->prev->next = removed->next;
+    } else {
+      head = removed->next;
+    }
+    delete removed;
+  }
+
+  bool contains(uint128_t digest) {
+    return cache.find(digest) != cache.end();
   }
   
   friend std::ostream& operator<<(std::ostream& out, const lru_cache& cache) {
-    out << "{";
+    out << "FORWARDS: {";
     auto n = cache.head;
     if (n != NULL) {
       out << n->data;
@@ -67,8 +93,8 @@ public:
         n = n->next;
       }
     }
-    out << "}";
-    out << "{";
+    out << "} ";
+    out << "BACKWARDS: {";
     n = cache.tail;
     if (n != NULL) {
       out << n->data;
@@ -82,15 +108,25 @@ public:
     return out;
   }
 
+  typedef lru_cache_iter<T> iterator;
+
+  iterator begin() {
+    return iterator(*this, 0);
+  }
+
+  iterator end() {
+    return iterator(*this, size());
+  }
+
 private:
   struct node {
     node* prev;
     node* next;
-    std::string key;
+    uint128_t digest;
     T data;
 
-    node(std::string key, T data, node* prev = NULL, node* next = NULL) {
-      this->key = key;
+    node(uint128_t digest, T data, node* prev = NULL, node* next = NULL) {
+      this->digest = digest;
       this->data = data;
       this->prev = prev;
       this->next = next;
@@ -98,11 +134,12 @@ private:
   };
 
   void evict() {
-    std::cout << "EVICT" << std::endl;
     if (tail) {
+      erase(tail->digest);
+      return;
       node* evicted = tail;
       tail = tail->prev;
-      cache.erase(evicted->key);
+      cache.erase(evicted->digest);
       delete evicted;
       if (tail) {
         tail->next = NULL;
@@ -136,10 +173,54 @@ private:
     }
   }
 
-  std::unordered_map<std::string, node*> cache;
+  std::map<uint128_t, node*> cache;
   int max_size;
   node* head;
   node* tail;
+};
+
+template <typename T>
+class lru_cache_iter {
+public:
+  typedef lru_cache_iter<T> iterator;
+
+  lru_cache_iter(lru_cache<T>& cache, int size) {
+    if (size == cache.size()) {
+      node = NULL;
+    } else {
+      node = cache.head;
+    }
+  }
+
+  uint128_t operator*() {
+    return node->digest;
+  }
+
+  typename lru_cache<T>::node* operator->() {
+    return node;
+  }
+
+  iterator & operator++() {
+    node = node->next;
+    return *this;
+  }
+
+  iterator operator++(int) {
+    iterator clone = *this;
+    ++(*this);
+    return clone;
+  }
+
+  bool operator==(const lru_cache_iter<T>& other) {
+    return node == other.node;
+  }
+
+  bool operator!=(const lru_cache_iter<T>& other) {
+    return node != other.node;
+  }
+
+private:
+  typename lru_cache<T>::node* node;
 };
 
 #endif
