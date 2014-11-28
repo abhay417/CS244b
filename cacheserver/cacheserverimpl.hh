@@ -23,6 +23,7 @@ public:
   using rpc_interface_type = cache_api_v1;
 
   std::unique_ptr<bytestream> getCacheContents(std::unique_ptr<longstring> arg);
+  std::unique_ptr<bytestream> getCacheContents2(std::unique_ptr<cacheRequest> arg);
   void newCacheserverAdded(std::unique_ptr<newCacheServerInfo> arg);
   void sendCachedData(std::unique_ptr<cacheTransfer> arg);
 };

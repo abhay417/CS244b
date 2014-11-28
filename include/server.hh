@@ -115,6 +115,43 @@ template<> struct xdr_traits<::cacheTransfer>
 };
 }
 
+struct cacheRequest {
+  longstring host{};
+  bool getRequest{};
+  longstring requestUrl{};
+  longstring request{};
+};
+namespace xdr {
+template<> struct xdr_traits<::cacheRequest>
+  : xdr_struct_base<field_ptr<::cacheRequest,
+                              decltype(::cacheRequest::host),
+                              &::cacheRequest::host>,
+                    field_ptr<::cacheRequest,
+                              decltype(::cacheRequest::getRequest),
+                              &::cacheRequest::getRequest>,
+                    field_ptr<::cacheRequest,
+                              decltype(::cacheRequest::requestUrl),
+                              &::cacheRequest::requestUrl>,
+                    field_ptr<::cacheRequest,
+                              decltype(::cacheRequest::request),
+                              &::cacheRequest::request>> {
+  template<typename Archive> static void
+  save(Archive &ar, const ::cacheRequest &obj) {
+    archive(ar, obj.host, "host");
+    archive(ar, obj.getRequest, "getRequest");
+    archive(ar, obj.requestUrl, "requestUrl");
+    archive(ar, obj.request, "request");
+  }
+  template<typename Archive> static void
+  load(Archive &ar, ::cacheRequest &obj) {
+    archive(ar, obj.host, "host");
+    archive(ar, obj.getRequest, "getRequest");
+    archive(ar, obj.requestUrl, "requestUrl");
+    archive(ar, obj.request, "request");
+  }
+};
+}
+
 struct api_v1 {
   static constexpr std::uint32_t program = 1074036870;
   static constexpr const char *program_name = "server_api";
@@ -196,7 +233,7 @@ struct api_v1 {
 };
 
 struct cache_api_v1 {
-  static constexpr std::uint32_t program = 2147778694;
+  static constexpr std::uint32_t program = 1074036866;
   static constexpr const char *program_name = "cache_server_api";
   static constexpr std::uint32_t version = 1;
   static constexpr const char *version_name = "cache_api_v1";
@@ -223,9 +260,31 @@ struct cache_api_v1 {
     }
   };
 
-  struct newCacheserverAdded_t {
+  struct getCacheContents2_t {
     using interface_type = cache_api_v1;
     static constexpr std::uint32_t proc = 2;
+    static constexpr const char *proc_name = "getCacheContents2";
+    using arg_type = cacheRequest;
+    using arg_wire_type = cacheRequest;
+    using res_type = bytestream;
+    using res_wire_type = bytestream;
+    
+    template<typename C, typename...A> static auto
+    dispatch(C &&c, A &&...a) ->
+    decltype(c.getCacheContents2(std::forward<A>(a)...)) {
+      return c.getCacheContents2(std::forward<A>(a)...);
+    }
+    
+    template<typename C, typename DropIfVoid, typename...A> static auto
+    dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
+    decltype(c.getCacheContents2(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
+      return c.getCacheContents2(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
+    }
+  };
+
+  struct newCacheserverAdded_t {
+    using interface_type = cache_api_v1;
+    static constexpr std::uint32_t proc = 3;
     static constexpr const char *proc_name = "newCacheserverAdded";
     using arg_type = newCacheServerInfo;
     using arg_wire_type = newCacheServerInfo;
@@ -247,7 +306,7 @@ struct cache_api_v1 {
 
   struct sendCachedData_t {
     using interface_type = cache_api_v1;
-    static constexpr std::uint32_t proc = 3;
+    static constexpr std::uint32_t proc = 4;
     static constexpr const char *proc_name = "sendCachedData";
     using arg_type = cacheTransfer;
     using arg_wire_type = cacheTransfer;
@@ -274,9 +333,12 @@ struct cache_api_v1 {
       t.template dispatch<getCacheContents_t>(std::forward<A>(a)...);
       return true;
     case 2:
-      t.template dispatch<newCacheserverAdded_t>(std::forward<A>(a)...);
+      t.template dispatch<getCacheContents2_t>(std::forward<A>(a)...);
       return true;
     case 3:
+      t.template dispatch<newCacheserverAdded_t>(std::forward<A>(a)...);
+      return true;
+    case 4:
       t.template dispatch<sendCachedData_t>(std::forward<A>(a)...);
       return true;
     }
@@ -290,6 +352,12 @@ struct cache_api_v1 {
     getCacheContents(_XDRARGS &&..._xdr_args) ->
     decltype(this->_XDRBASE::template invoke<getCacheContents_t>(_xdr_args...)) {
       return this->_XDRBASE::template invoke<getCacheContents_t>(_xdr_args...);
+    }
+
+    template<typename..._XDRARGS> auto
+    getCacheContents2(_XDRARGS &&..._xdr_args) ->
+    decltype(this->_XDRBASE::template invoke<getCacheContents2_t>(_xdr_args...)) {
+      return this->_XDRBASE::template invoke<getCacheContents2_t>(_xdr_args...);
     }
 
     template<typename..._XDRARGS> auto

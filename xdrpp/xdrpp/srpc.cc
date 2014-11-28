@@ -18,7 +18,7 @@ read_message(int fd)
   if (n == -1)
     throw xdr_system_error("xdr::read_message");
   if (n < 4)
-    throw xdr_bad_message_size("read_message: premature EOF");
+    throw xdr_bad_message_size("read_message: premature EOF 1");
   if (n & 3)
     throw xdr_bad_message_size("read_message: received size not multiple of 4");
   if (n >= 0x80000000)
@@ -31,12 +31,14 @@ read_message(int fd)
     throw xdr_bad_message_size("read_message: message fragments unimplemented");
 
   msg_ptr m = message_t::alloc(len);
-  n = read(fd, m->data(), len);
-  if (n == -1)
-    throw xdr_system_error("xdr::read_message");
-  if (n != len)
-    throw xdr_bad_message_size("read_message: premature EOF");
-
+  uint32_t bytesRead = 0;
+  do {
+    n = read(fd, m->data() + bytesRead, len - bytesRead);
+    if (n == -1) {
+      throw xdr_system_error("xdr::read_message");
+    }
+    bytesRead += n;
+  } while (bytesRead < len);
   return m;
 }
 

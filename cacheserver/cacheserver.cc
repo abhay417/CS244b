@@ -23,7 +23,7 @@ using namespace xdr;
 #define HEARTBEAT_INTERVAL 1
 //This function sends HB to the masterServer
 //once every HEARTBEAT_INTERVAL
-void* heartbeat_loop(void * val)
+void* heartbeatLoop(void* val)
 {
   string masterServer((const char*)val);
   auto fd = tcp_connect(masterServer.c_str(), UNIQUE_MASTER_PORT);
@@ -43,9 +43,10 @@ int main(int argc, const char *argv[])
 {
   /*//HTTP client test
   int headSize;
-  httpclient webclient("i.imgur.com","80");
+  httpclient webclient("i.imgur.com");
   vector<uint8_t> httpContent = webclient.sendRequest("/R6u2kaI.png",
                                                       headSize);
+  cout << "Headsize" << headSize << endl;
   //print the header
   for (int i = 0; i < headSize; i++) {
     cout << (char) httpContent[i];
@@ -56,8 +57,8 @@ int main(int argc, const char *argv[])
   for (int i = headSize; i < httpContent.size(); i++) {
     myFile << httpContent[i];
   }
-  myFile.close();
-  */
+  myFile.close();*/
+  
 
   /*Testing uint128_t conversions
   uint64_t low = 0xFEDCBA;
@@ -120,9 +121,9 @@ int main(int argc, const char *argv[])
     return 0;
   }
 
-  pthread_t heartbeat_thread;
-  int hb_res = pthread_create(&heartbeat_thread, NULL,
-                              heartbeat_loop, (void*)argv[1]);
+  pthread_t heartbeatThread;
+  int hb_res = pthread_create(&heartbeatThread, NULL,
+                              heartbeatLoop, (void*)argv[1]);
   if (hb_res) {
     cout << "Failed to create HB thread: Ret code: " << hb_res << endl;
   } 
@@ -137,7 +138,7 @@ int main(int argc, const char *argv[])
       cerr << e.what() << endl;
   }
 
-  pthread_join(heartbeat_thread, NULL);
+  pthread_join(heartbeatThread, NULL);
   return 0;
 }
 

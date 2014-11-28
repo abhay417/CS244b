@@ -70,7 +70,7 @@ Cmd_CacheContents(int argc, const char *argv[])
 
     try {
         string ret = client.getCacheContents(argv[1], argv[2]);
-        cout << "Cache return: " << ret << endl;
+        //cout << "Cache return: " << ret << endl;
     } catch (ClientException &e) {
         cout << e.what() << endl;
     }

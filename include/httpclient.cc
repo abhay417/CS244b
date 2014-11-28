@@ -11,13 +11,13 @@ httpclient::open_socketfd(const string& hostname,
                           int (*func)(int, const struct sockaddr*, socklen_t))
 {
   //Create hints and get IP of the host
-	struct addrinfo hints;
-	memset(&hints, 0, sizeof(hints));
-	/* ai_flags indicating what type of connection there is
-	   flags is expected to be either PASSIVE or V4_MAPPED */
-	hints.ai_flags = AI_ADDRCONFIG | flags;
-	hints.ai_family = AF_INET;       //IPv4 address
-	hints.ai_socktype = SOCK_STREAM; //Stream connection
+  struct addrinfo hints;
+  memset(&hints, 0, sizeof(hints));
+  /* ai_flags indicating what type of connection there is
+     flags is expected to be either PASSIVE or V4_MAPPED */
+  hints.ai_flags = AI_ADDRCONFIG | flags;
+  hints.ai_family = AF_INET;       //IPv4 address
+  hints.ai_socktype = SOCK_STREAM; //Stream connection
   hints.ai_protocol = IPPROTO_TCP; //TCP connection
 
   //Get the host's IP
@@ -26,28 +26,28 @@ httpclient::open_socketfd(const string& hostname,
                   port.c_str(),
                   &hints,
                   &hostaddresses) != 0) {
-		return;
+    return;
   }
 
-	/* creates a socket to that address */
-	_socket = socket(hostaddresses->ai_family,
+  /* creates a socket to that address */
+  _socket = socket(hostaddresses->ai_family,
                    hostaddresses->ai_socktype,
                    hostaddresses->ai_protocol);
   if (_socket <= 0) {
-	  freeaddrinfo(hostaddresses);
-	  return;
+    freeaddrinfo(hostaddresses);
+    return;
   }
 
   /* either binds or connects to the address */
-	if(func(_socket,
+  if(func(_socket,
           hostaddresses->ai_addr,
           hostaddresses->ai_addrlen) == -1) {
-	  freeaddrinfo(hostaddresses);
-		return;
+    freeaddrinfo(hostaddresses);
+    return;
   }
 
-	freeaddrinfo(hostaddresses);
-	_initialized = true;
+  freeaddrinfo(hostaddresses);
+  _initialized = true;
 }
 
 httpclient::httpclient(string host, string port): _socket(0), _initialized(false)
@@ -55,7 +55,7 @@ httpclient::httpclient(string host, string port): _socket(0), _initialized(false
   //Remove http:// if passed
   string httpPrefix("http://");
   if (strcasecmp(host.substr(0, httpPrefix.length()).c_str(),
-              httpPrefix.c_str()) == 0) {
+                 httpPrefix.c_str()) == 0) {
     //Prefix matched
     host = host.substr(httpPrefix.length());
   }
@@ -71,7 +71,7 @@ httpclient::httpclient(string host, string port): _socket(0), _initialized(false
     cerr << "Error connecting to server " << host << endl;
     return; 
   }
-  cout << "Successfully initialized connection" << endl; 
+  //cout << "Successfully initialized connection" << endl; 
 }
 
 httpclient::~httpclient()
@@ -81,6 +81,8 @@ httpclient::~httpclient()
   }
 }
 
+//XXX: Consolidate common code from the following
+//     two functions
 vector<uint8_t>
 httpclient::sendRequest(string queryStr,
                         int &headerSize,
@@ -92,7 +94,7 @@ httpclient::sendRequest(string queryStr,
   string req = getRequest ? "GET " : "HEAD ";
   req += queryStr + " HTTP/1.1\r\nHost: " +
                      _host + "\r\nAccept: */*\r\n\r\n";
- 
+  
   //Send the request
   int n = send(_socket, req.c_str(), req.size(), 0);
   if (n <= 0) {
@@ -100,41 +102,35 @@ httpclient::sendRequest(string queryStr,
     return response;
   }
  
-  //Loop and get the content
-  uint8_t buf[4096];
-
   //Read the header first that is until we encounter a \r\n\r\n
   string responseHeader;
   if (!getHttpHeader(_socket, responseHeader)) {
     cerr << "Failed to get HTTP header" << endl;
     return response;
   }
+  headerSize = responseHeader.size();
   
   //Get the content length
   string cLenStr("Content-Length:");
   size_t cLenIndEnd = responseHeader.find(cLenStr) + cLenStr.length();
   size_t nextCRLF = responseHeader.find("\r\n", cLenIndEnd);
   string contentLenStr = responseHeader.substr(cLenIndEnd,
-                                            nextCRLF - cLenIndEnd);
+                                               nextCRLF - cLenIndEnd);
   int contentLen = atoi(contentLenStr.c_str());
-  //cout << cLenIndEnd << " "
-  //     << nextCRLF << " " 
-  //     << contentLenStr << " "
-  //     << contentLen << " "
-  //     << totalBytesReceived << " "
-  //     << responseHeader.size() << endl; 
 
-  //Copy the header to resPonse
+  //Copy the header to response
   response.reserve(responseHeader.size());
   response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
                   (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
 
   if (!getRequest) {
     //Return the response header for head request
+    cout << "HEAD response complete" << endl;
     return response;
   }
 
-  //if GET request get the remaining bytes
+  //If GET request the loop to get the remaining bytes
+  uint8_t buf[4096];
   int totalBytesReceived = 0;
   while (totalBytesReceived < contentLen) {
     n = recv(_socket, buf, sizeof(buf), 0);
@@ -146,8 +142,73 @@ httpclient::sendRequest(string queryStr,
     response.insert(response.end(), buf, buf + n); 
   }
   
-  //cout << "Total bytes received: " << totalBytesReceived << endl;
-
-  //cout << "GET response complete" << endl;
+  cout << "GET response complete" << endl;
   return response;
 }
+
+vector<uint8_t>
+httpclient::sendRequest2(string request,
+                         int &headerSize,
+                         bool getRequest)
+{
+  vector<uint8_t> response;
+  headerSize = 0;
+  
+  //Send the request
+  int n = 0;
+  int totalBytesSent = 0;
+  do {
+    n = send(_socket, request.c_str() + totalBytesSent,
+             request.size() - totalBytesSent, 0);
+    if (n <= 0) {
+      cerr << "Error writing to socket" << endl;
+      return response;
+    }
+    totalBytesSent += n;
+  } while (totalBytesSent < request.size());
+ 
+  //Read the header first that is until we encounter a \r\n\r\n
+  string responseHeader;
+  if (!getHttpHeader(_socket, responseHeader)) {
+    cerr << "Failed to get HTTP header" << endl;
+    return response;
+  }
+  headerSize = responseHeader.size();
+  
+  //Get the content length
+  string cLenStr("Content-Length:");
+  size_t cLenIndEnd = responseHeader.find(cLenStr) + cLenStr.length();
+  size_t nextCRLF = responseHeader.find("\r\n", cLenIndEnd);
+  string contentLenStr = responseHeader.substr(cLenIndEnd,
+                                            nextCRLF - cLenIndEnd);
+  int contentLen = atoi(contentLenStr.c_str());
+
+  //Copy the header to resPonse
+  response.reserve(responseHeader.size());
+  response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
+                  (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
+
+  if (!getRequest) {
+    //Return the response header for head request
+    cout << "HEAD response complete" << endl;
+    return response;
+  }
+
+  //If GET request the loop to get the remaining bytes
+  uint8_t buf[4096];
+  int totalBytesReceived = 0;
+  while (totalBytesReceived < contentLen) {
+    n = recv(_socket, buf, sizeof(buf), 0);
+    if (n <= 0) {
+      cerr << "Failed to recv data" << endl;
+    }
+    totalBytesReceived += n;
+    response.reserve(totalBytesReceived);
+    response.insert(response.end(), buf, buf + n); 
+  }
+  
+  cout << "GET response complete" << endl;
+  return response;
+}
+
+

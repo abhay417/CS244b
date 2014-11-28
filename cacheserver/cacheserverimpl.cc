@@ -14,11 +14,13 @@
 using namespace std;
 using namespace xdr;
 
+//XXX: Consolidate the common code in the following two functions
 unique_ptr<bytestream>
 cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
 {
   string url = *arg;
-  cout << "getCacheContents " << url << endl;
+  
+  cout << "Fetching request url: " << url << endl;
   //First check if the URL content is already in our cache
   uint128_t urlDigest;
   getMD5Digest(url, &urlDigest);
@@ -31,7 +33,7 @@ cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
     string host = url.substr(0, firstSlashInd);
     string querystr = url.substr(firstSlashInd);
     cout << "host: " << host << " querystr: " << querystr << endl;
-    httpclient webclient(host, "80");
+    httpclient webclient(host);
     int headSize;
     vector<uint8_t> httpContent = webclient.sendRequest(querystr, headSize);
     if (USE_STATSSERVER) {
@@ -51,11 +53,61 @@ cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
   //XXX: Doing a memcpy here will probably be faster
   unique_ptr<bytestream> ret(new bytestream);
   vector<uint8_t>& data = cache.get(urlDigest);
-  ret->resize(data.size());
+  ret->reserve(data.size());
+  for (int i = 0; i < data.size(); i++) {
+    ret->push_back(data[i]);
+  }
+
+  cout << "Return data size: " << ret->size() << endl;
+  return ret;
+}
+
+unique_ptr<bytestream>
+cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
+{
+  string host = arg->host;
+  string url  = arg->requestUrl;
+  bool getRequest = arg->getRequest;
+  string request = arg->request;
+  
+  cout << "Fetching request from host: " << host 
+       << " requestURL: " << url << endl;
+  //First check if the URL content is already in our cache
+  uint128_t urlDigest;
+  getMD5Digest(url, &urlDigest);
+  httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
+  if (!cache.contains(urlDigest)) {
+    cout << "Content not in cache so fetching from the origin server" << endl;
+    //URL content is not already cached
+    //Make an HTTP request to get it, then cache and return it
+    httpclient webclient(host);
+    int headSize;
+    vector<uint8_t> httpContent = webclient.sendRequest2(request, 
+                                                         headSize,
+                                                         getRequest);
+    if (USE_STATSSERVER) {
+      int statsHeadSize;
+      statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);
+    }
+    //Cache it
+    cache.put(urlDigest, httpContent);
+  } else {
+    if (USE_STATSSERVER) {
+      int statsHeadSize;
+      statsclient.sendRequest("/statsServer?q=cacheHit", statsHeadSize);
+    }
+  }
+
+  //Return the content
+  //XXX: Doing a memcpy here will probably be faster
+  unique_ptr<bytestream> ret(new bytestream);
+  vector<uint8_t>& data = cache.get(urlDigest);
+  ret->reserve(data.size());
   for (int i = 0; i < data.size(); i++) {
     ret->push_back(data[i]);
   }  
 
+  cout << "Return data size: " << ret->size() << endl;
   return ret;
 }
 
@@ -99,7 +151,7 @@ cache_api_v1_server::newCacheserverAdded(unique_ptr<newCacheServerInfo> arg)
     ct.lowDigest = digest;
     ct.highDigest = digest >> 64;
     ct.sourceNodeIP = getOwnAddress();
-    ct.cacheData.resize(cachedData.size());
+    ct.cacheData.reserve(cachedData.size());
     for (int j = 0; j < cachedData.size(); j++) {
       ct.cacheData.push_back(cachedData[j]);
     }  

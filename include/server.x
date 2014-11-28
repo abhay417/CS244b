@@ -22,6 +22,13 @@ struct cacheTransfer {
   longstring sourceNodeIP;
 };
 
+struct cacheRequest {
+  longstring host;
+  bool getRequest;
+  longstring requestUrl;
+  longstring request;
+};
+
 program server_api {
   version api_v1 {
     void sendHeartbeat(heartbeat) = 1;
@@ -32,8 +39,9 @@ program server_api {
 program cache_server_api {
   version cache_api_v1 {
     bytestream getCacheContents(longstring) = 1;
-    void newCacheserverAdded(newCacheServerInfo) = 2;
-    void sendCachedData(cacheTransfer) = 3;
+    bytestream getCacheContents2(cacheRequest) = 2;
+    void newCacheserverAdded(newCacheServerInfo) = 3;
+    void sendCachedData(cacheTransfer) = 4;
   } = 1;
-} = 0x80048086;
+} = 0x40048082;
 

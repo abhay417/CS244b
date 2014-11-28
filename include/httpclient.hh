@@ -19,17 +19,19 @@ private:
   bool _initialized;
   int _socket;
   string _host;
-	void open_socketfd(const string& hostname,
+  void open_socketfd(const string& hostname,
                      const string& port,
                      int flags,
                      int (*func)(int, const struct sockaddr*, socklen_t));
 public:
-  httpclient(string host);
-  httpclient(string host, string port);
+  httpclient(string host, string port = "80");
   ~httpclient();
-	vector<uint8_t> sendRequest(string queryStr,
+  vector<uint8_t> sendRequest(string queryStr,
                               int &headerSize,
                               bool getRequest = true);
+  vector<uint8_t> sendRequest2(string request,
+                               int &headerSize,
+                               bool getRequest = true);
 };
 
 #endif

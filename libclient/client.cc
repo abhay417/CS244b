@@ -86,13 +86,13 @@ Client::getCacheContents(const string& cacheHost,
   auto res = cclient->getCacheContents(urlStr);
 
   string ret;
-  ret.resize(res->size());
+  ret.reserve(res->size());
   //XXX: For now we return a string
   //     We may be able to use memcpy here
   for (int i = 0; i < res->size(); i++) {
     ret += (*res)[i];
   }
-  cout << ret << endl;
+  cout << "Received data size: " << ret.size() << endl;
 
   //deleting the client will terminate the connection
   delete cclient;
