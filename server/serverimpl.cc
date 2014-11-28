@@ -40,9 +40,11 @@ api_v1_server::removeTimedOutServers(uint128_t curr_nsec)
     for (int j = 0; j < nodeDigests.size(); j++) {
         _ring.erase(nodeDigests[j]);
     }
-    httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
-    int statsHeadSize;
-    statsclient.sendRequest("/statsServer?q=dropMember", statsHeadSize);
+    if (USE_STATSSERVER) {
+        httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
+        int statsHeadSize;
+        statsclient.sendRequest("/statsServer?q=dropMember", statsHeadSize);
+    }
 
     cout << "removed server " << currServer << " from ring " << endl;
   }
@@ -68,9 +70,11 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
     return;
   }
 
-  httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
-  int statsHeadSize;
-  statsclient.sendRequest("/statsServer?q=addMember", statsHeadSize);
+  if (USE_STATSSERVER) {
+    httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
+    int statsHeadSize;
+    statsclient.sendRequest("/statsServer?q=addMember", statsHeadSize);
+  }
 
   //Add the cache server to the ring
   vector<uint128_t> nodeDigests = getVirtualNodeDigests(ip);

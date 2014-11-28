@@ -10,6 +10,6 @@ then
 else
   curl localhost:4006/statsServer?q=cacheHit 
 fi
-sleep 0.1; 
+sleep 0.05; 
 done
 

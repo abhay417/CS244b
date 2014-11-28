@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-import numpy as np
-import matplotlib.pyplot as plt
+#import numpy as np
+#import matplotlib.pyplot as plt
 import time
 import threading
 import os
@@ -119,4 +119,4 @@ except KeyboardInterrupt:
 	print '^C received, shutting down the stats server'
 	active = False
 	server.socket.close()
-        PlotResults()
+        #PlotResults()
