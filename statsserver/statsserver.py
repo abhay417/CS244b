@@ -93,6 +93,7 @@ class StatsHandler(BaseHTTPRequestHandler):
 			statParameters[token.split('=')[0]] = token.split('=')[1]
 		stat = StatsObject(statType, statParameters)
 		if stat.statType == 'addMember' or stat.statType == 'dropMember':
+			f.write(str(GetCurrentTime() - startTimeSeconds) + "," + stat.statType + "\n")
 			changes.append(GetCurrentTime() - startTimeSeconds)
 		self.send_response(200)
 		self.send_header('Content-type','text/html')
