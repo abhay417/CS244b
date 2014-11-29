@@ -11,7 +11,7 @@ import signal
 GetCurrentTime = lambda: int(round(time.time()))
 
 PORT_NUMBER = 4006
-timeWindowSeconds = 1
+timeWindowSeconds = 10
 startTimeSeconds = GetCurrentTime()
 aggregatedStats = []
 timeSeries = []

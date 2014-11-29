@@ -1,6 +1,6 @@
 // Scaffolding originally generated from include/server.x.
 // Edit to add functionality.
-
+ 
 #include "server/serverimpl.hh"
 #include <xdrpp/srpc.h>
 #include <xdrpp/rpcbind.hh>
@@ -150,7 +150,19 @@ api_v1_server::getCacheServer(std::unique_ptr<longstring> arg)
   
   uint128_t digest;
   getMD5Digest(url, &digest);
-  *ret = getCacheServer(digest);
+
+  if (USE_CHASHING) {
+    *ret = getCacheServer(digest);
+  } else {
+    int i = digest % _currServers.size();
+    for (auto server_pair : _currServers) {
+      if (i == 0) {
+         *ret = server_pair.first;
+      } 
+      i--;
+    }
+  }
+
   cout << "Returning cache server: " << *ret << endl;
   return ret;
 }
