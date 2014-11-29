@@ -15,7 +15,6 @@ class lru_cache_iter;
 template <typename T>
 class lru_cache {
 public:
-
   friend class lru_cache_iter<T>;
 
   lru_cache(int max_size = 10) {
@@ -65,16 +64,7 @@ public:
   void erase(uint128_t digest) {
     node* removed = cache[digest];
     cache.erase(digest);
-    if (removed->next) {
-      removed->next->prev = removed->prev;
-    } else {
-      tail = removed->prev;
-    }
-    if (removed->prev) {
-      removed->prev->next = removed->next;
-    } else {
-      head = removed->next;
-    }
+    remove(removed);
     delete removed;
   }
 
@@ -136,16 +126,6 @@ private:
   void evict() {
     if (tail) {
       erase(tail->digest);
-      return;
-      node* evicted = tail;
-      tail = tail->prev;
-      cache.erase(evicted->digest);
-      delete evicted;
-      if (tail) {
-        tail->next = NULL;
-      } else {
-        head = NULL;
-      }
     }
   }
 
