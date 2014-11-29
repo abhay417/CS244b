@@ -49,13 +49,17 @@ createBindListenSocket(int port)
 }
 
 void*
-proxyServerLoop(void* dummy)
+proxyServerLoop(void* MasterServer)
 {
   //First create a socket to listen to proxy requests
   int hSocket = createBindListenSocket(UNIQUE_PROXY_PORT);
   if (hSocket == -1) {
     cerr << "Failed to create socket to listen to the proxy port" << endl;
+    return NULL;
   }
+  
+  //Setup master so we can access the _ring
+  api_v1_server* pMaster = (api_v1_server*) MasterServer;
   
   //XXX: These variable will probably be required to process
   //     non GET/HEAD requests
@@ -111,9 +115,11 @@ proxyServerLoop(void* dummy)
     string host = header.substr(hostInd + hostKey.length(),
                   nextCRLF - hostInd - hostKey.length());
     
-    //XXX: Get the cache server to contact
-    //     For now we need a cacheserver running on myth7
-    string cacheServer("myth7");
+    //Get the cache server to contact
+    uint128_t digest;
+    getMD5Digest(requestUrl, &digest);
+    string cacheServer = pMaster->getCacheServer(digest);
+    //cout << "CacheServer: " << cacheServer << endl;
     
     //Create a cache server client and get the content
     auto fd = tcp_connect(cacheServer.c_str(), UNIQUE_CACHESERVER_PORT);
@@ -126,12 +132,7 @@ proxyServerLoop(void* dummy)
     cr.requestUrl = requestUrl;
     cr.request = header;
     auto res = csClient->getCacheContents2(cr);
-    cout << "Received from cache server: " << res->size() << endl; 
-    //vector<uint8_t> response;
-    //response.reserve(res->size());
-    //for (int i = 0; i < res->size(); i++) {
-    //  response[i] = (*res)[i];
-    //}
+    cout << "Received from cache server: " << std::dec << res->size() << endl; 
     
     //Now we send back the content to the client
     int totalBytesSent = 0;
@@ -165,7 +166,7 @@ int main(int argc, const char *argv[])
     //Create a thread for the proxy server
     pthread_t proxyThread;
     int proxy_res = pthread_create(&proxyThread, NULL,
-                                   proxyServerLoop, (void*)NULL);
+                                   proxyServerLoop, (void*)&s);
     
     try {
         rl.register_service(s);

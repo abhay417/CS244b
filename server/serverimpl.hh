@@ -15,6 +15,11 @@
 using namespace std;
 using namespace xdr;
 
+//Proxy server loop with be declared a friend function to the
+//class api_v1_server so we can access the HashRing '_ring' 
+extern void*
+proxyServerLoop(void* dummy);
+
 #define HASHRING_TIMEOUT 3000000000
 #define NUM_VIRTUAL_NODES 4
 //Note: The number of suffixes in the following
@@ -31,7 +36,9 @@ private:
   Hashring _ring;
   map<string, uint128_t> _currServers;
 
+  string getCacheServer(uint128_t digest);
   void removeTimedOutServers(uint128_t current_nsec);
+  friend void* proxyServerLoop(void*);
 public:
   using rpc_interface_type = api_v1;
 

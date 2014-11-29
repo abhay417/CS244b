@@ -20,7 +20,6 @@ cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
 {
   string url = *arg;
   
-  cout << "Fetching request url: " << url << endl;
   //First check if the URL content is already in our cache
   uint128_t urlDigest;
   getMD5Digest(url, &urlDigest);
@@ -70,8 +69,6 @@ cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
   bool getRequest = arg->getRequest;
   string request = arg->request;
   
-  cout << "Fetching request from host: " << host 
-       << " requestURL: " << url << endl;
   //First check if the URL content is already in our cache
   uint128_t urlDigest;
   getMD5Digest(url, &urlDigest);

@@ -21,6 +21,17 @@ getVirtualNodeDigests(const string& ip)
   return digestVector;
 }
 
+string
+api_v1_server::getCacheServer(uint128_t digest)
+{
+  auto i = _ring.lower_bound(digest);
+  if (i == _ring.end()) {
+    //wrap around
+    i = _ring.begin();
+  }
+  return i->second;
+}
+
 void
 api_v1_server::removeTimedOutServers(uint128_t curr_nsec)
 {
@@ -139,14 +150,7 @@ api_v1_server::getCacheServer(std::unique_ptr<longstring> arg)
   
   uint128_t digest;
   getMD5Digest(url, &digest);
-
-  auto i = _ring.lower_bound(digest);
-  if (i == _ring.end()) {
-    //wrap around
-    i = _ring.begin();
-  }
-
-  *ret = i->second;
+  *ret = getCacheServer(digest);
   cout << "Returning cache server: " << *ret << endl;
   return ret;
 }
