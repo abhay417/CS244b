@@ -103,6 +103,7 @@ void lru_cache::evict() {
   if (tail) {
     erase(tail->digest);
   }
+  cout << "Cache tail evicted" << endl;
 }
 
 void lru_cache::insert_head(lru_cache::node* n) {

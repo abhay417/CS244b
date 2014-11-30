@@ -9,13 +9,15 @@
 #include "include/server.hh"
 #include "include/helpers.hh"
 
+#define HUNDRED_MB_IN_BYTES 100000000
+
 class lru_cache_iter;
 
 class lru_cache {
 public:
   friend class lru_cache_iter;
 
-  lru_cache(int max_size = 1000000);
+  lru_cache(int max_size = HUNDRED_MB_IN_BYTES);
   ~lru_cache();
 
   int size();
