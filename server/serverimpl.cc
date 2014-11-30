@@ -22,7 +22,7 @@ getVirtualNodeDigests(const string& ip)
 }
 
 string
-api_v1_server::getCacheServer(uint128_t digest)
+api_v1_server::getCacheServer(uint128_t digest) const
 {
   auto i = _ring.lower_bound(digest);
   if (i == _ring.end()) {

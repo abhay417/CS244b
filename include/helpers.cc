@@ -27,31 +27,72 @@ getMonotonicNsec() {
 }
 
 bool
+getHTTPContent(int socket,
+               const string& header,
+               vector<uint8_t>& content)
+{
+  //First get the content length from the header
+  string cLenStr("Content-Length:");
+  size_t cLenIndEnd = header.find(cLenStr);
+  if (cLenIndEnd == string::npos) {
+    //Content length not found
+    //Assuming length of 0
+    return true;
+  }
+  cLenIndEnd += cLenStr.length();
+  size_t nextCRLF = header.find("\r\n", cLenIndEnd);
+  string contentLenAsStr = header.substr(cLenIndEnd,
+                                         nextCRLF - cLenIndEnd);
+  int contentLen = atoi(contentLenAsStr.c_str());
+
+  //Then get the content
+  uint8_t buf[4096];
+  int initSize = content.size();
+  int totalBytesReceived = 0;
+  do {
+    int n = recv(socket, buf, sizeof(buf), 0);
+    if (n <= 0) {
+      cerr << "(getHTTPContent)Failed to recv data. N="
+           << n << endl;
+      return false;
+    }
+    totalBytesReceived += n;
+    content.reserve(totalBytesReceived + initSize);
+    content.insert(content.end(), buf, buf + n);
+  } while (totalBytesReceived < contentLen);
+  
+  return true;
+}
+
+bool
 getHttpHeader(int socket,
               string& header)
 {
-	//Get the first 4 bytes
-	char buf[4];
-	int n = recv(socket, buf, 4, 0);
-	if (n != 4) {
-		//XXX: Is it better to fail or to loop here?
-		cerr << "Failed to recv data." << endl;
-		return false;
-	}
-	header.insert(0, buf, 4);
-	
-	//Loop until we get the CRLFCRLF that signals the end
-	//of the header
-	while (header.substr(header.length() - 4, 4) != "\r\n\r\n") {
-		n = recv (socket, buf, 1, 0);
-		if (n != 1) {
-		  cerr << "Failed to recv data" << endl;
-		  return false;
-		}
-		header += buf[0];
-	}
-	
-	return true;
+  header.clear();
+  header.reserve(4096);
+  //Get the first 4 bytes
+  char buf[4];
+  int n = recv(socket, buf, 4, 0);
+  if (n != 4) {
+    //XXX: Is it better to fail or to loop here?
+    cerr << "(getHTTPHeader)Failed to recv 4 bytes. N=" << n << endl;
+    return false;
+  }
+  header.insert(0, buf, 4);
+  
+  //Loop until we get the CRLFCRLF that signals the end
+  //of the header
+  while (header.substr(header.length() - 4, 4) != "\r\n\r\n") {
+    n = recv (socket, buf, 1, 0);
+    if (n != 1) {
+      cerr << "(getHTTPHeader)Failed to recv 1 byte. N="
+           << n << endl;
+      return false;
+    }
+    header += buf[0];
+  }
+  
+  return true;
 }
 
 string

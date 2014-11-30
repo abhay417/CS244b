@@ -109,37 +109,22 @@ httpclient::sendRequest(string queryStr,
     return response;
   }
   headerSize = responseHeader.size();
-  
-  //Get the content length
-  string cLenStr("Content-Length:");
-  size_t cLenIndEnd = responseHeader.find(cLenStr) + cLenStr.length();
-  size_t nextCRLF = responseHeader.find("\r\n", cLenIndEnd);
-  string contentLenStr = responseHeader.substr(cLenIndEnd,
-                                               nextCRLF - cLenIndEnd);
-  int contentLen = atoi(contentLenStr.c_str());
 
   //Copy the header to response
-  response.reserve(responseHeader.size());
+  response.reserve(headerSize);
   response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
                   (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
 
   if (!getRequest) {
-    //Return the response header for head request
+    //Return the response header for HEAD requests
     cout << "HEAD response complete" << endl;
     return response;
   }
 
-  //If GET request the loop to get the remaining bytes
-  uint8_t buf[4096];
-  int totalBytesReceived = 0;
-  while (totalBytesReceived < contentLen) {
-    n = recv(_socket, buf, sizeof(buf), 0);
-    if (n <= 0) {
-      cerr << "Failed to recv data" << endl;
-    }
-    totalBytesReceived += n;
-    response.reserve(totalBytesReceived);
-    response.insert(response.end(), buf, buf + n); 
+  //For GET request get the content
+  if (!getHTTPContent(_socket, responseHeader,
+                      response)) {
+    return response;
   }
   
   cout << "GET response complete" << endl;
@@ -170,41 +155,25 @@ httpclient::sendRequest2(string request,
   //Read the header first that is until we encounter a \r\n\r\n
   string responseHeader;
   if (!getHttpHeader(_socket, responseHeader)) {
-    cerr << "Failed to get HTTP header" << endl;
     return response;
   }
   headerSize = responseHeader.size();
-  
-  //Get the content length
-  string cLenStr("Content-Length:");
-  size_t cLenIndEnd = responseHeader.find(cLenStr) + cLenStr.length();
-  size_t nextCRLF = responseHeader.find("\r\n", cLenIndEnd);
-  string contentLenStr = responseHeader.substr(cLenIndEnd,
-                                            nextCRLF - cLenIndEnd);
-  int contentLen = atoi(contentLenStr.c_str());
 
-  //Copy the header to resPonse
-  response.reserve(responseHeader.size());
+  //Copy the header to response
+  response.reserve(headerSize);
   response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
                   (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
 
   if (!getRequest) {
-    //Return the response header for head request
+    //Return the response header for HEAD requests
     cout << "HEAD response complete" << endl;
     return response;
   }
 
-  //If GET request the loop to get the remaining bytes
-  uint8_t buf[4096];
-  int totalBytesReceived = 0;
-  while (totalBytesReceived < contentLen) {
-    n = recv(_socket, buf, sizeof(buf), 0);
-    if (n <= 0) {
-      cerr << "Failed to recv data" << endl;
-    }
-    totalBytesReceived += n;
-    response.reserve(totalBytesReceived);
-    response.insert(response.end(), buf, buf + n); 
+  //For GET request get the content
+  if (!getHTTPContent(_socket, responseHeader,
+                      response)) {
+    return response;
   }
   
   cout << "GET response complete" << endl;

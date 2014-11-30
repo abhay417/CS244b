@@ -59,7 +59,7 @@ proxyServerLoop(void* MasterServer)
   }
   
   //Setup master so we can access the _ring
-  api_v1_server* pMaster = (api_v1_server*) MasterServer;
+  const api_v1_server* pMaster = (api_v1_server*) MasterServer;
   
   //XXX: These variable will probably be required to process
   //     non GET/HEAD requests
@@ -83,7 +83,6 @@ proxyServerLoop(void* MasterServer)
     //Get the headers first
     string header;
     if (!getHttpHeader(clientSocket, header)) {
-      cerr << "Failed to get HTTP header" << endl;
       close(clientSocket);
       continue;
     }
@@ -150,6 +149,8 @@ proxyServerLoop(void* MasterServer)
     //Response sent back to client
     close(clientSocket);
   }
+  
+  close(hSocket);
 }
 
 int main(int argc, const char *argv[])

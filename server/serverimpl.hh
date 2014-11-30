@@ -36,7 +36,7 @@ private:
   Hashring _ring;
   map<string, uint128_t> _currServers;
 
-  string getCacheServer(uint128_t digest);
+  string getCacheServer(uint128_t digest) const;
   void removeTimedOutServers(uint128_t current_nsec);
   friend void* proxyServerLoop(void*);
 public:
