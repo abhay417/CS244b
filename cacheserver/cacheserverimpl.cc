@@ -68,13 +68,14 @@ cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
   string url  = arg->requestUrl;
   bool getRequest = arg->getRequest;
   string request = arg->request;
-  
+
+  cout << "Requesting " << url << endl;
+
   //First check if the URL content is already in our cache
   uint128_t urlDigest;
   getMD5Digest(url, &urlDigest);
-  httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
   if (!cache.contains(urlDigest)) {
-    cout << "Content not in cache so fetching from the origin server" << endl;
+    cout << "MISS" << endl;
     //URL content is not already cached
     //Make an HTTP request to get it, then cache and return it
     httpclient webclient(host);
@@ -84,13 +85,16 @@ cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
                                                          getRequest);
     if (USE_STATSSERVER) {
       int statsHeadSize;
+      httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
       statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);
     }
     //Cache it
     cache.put(urlDigest, httpContent);
   } else {
+    cout << "HIT" << endl;
     if (USE_STATSSERVER) {
       int statsHeadSize;
+      httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
       statsclient.sendRequest("/statsServer?q=cacheHit", statsHeadSize);
     }
   }
@@ -104,7 +108,7 @@ cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
     ret->push_back(data[i]);
   }  
 
-  cout << "Return data size: " << ret->size() << endl;
+  cout << "Return data size: " << ret->size() << endl << endl;
   return ret;
 }
 

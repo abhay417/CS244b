@@ -1,6 +1,7 @@
 
 CSERVER_SRC := cacheserver/cacheserver.cc \
 			         cacheserver/cacheserverimpl.cc \
+			         cacheserver/lrucache.cc \
                include/helpers.cc \
                include/httpclient.cc
 
