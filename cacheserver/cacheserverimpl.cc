@@ -66,7 +66,7 @@ cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
 {
   string host = arg->host;
   string url  = arg->requestUrl;
-  bool getRequest = arg->getRequest;
+  bool isHeadRequest = arg->isHeadRequest;
   string request = arg->request;
 
   cout << "Requesting " << url << endl;
@@ -82,7 +82,7 @@ cache_api_v1_server::getCacheContents2(unique_ptr<cacheRequest> arg)
     int headSize;
     vector<uint8_t> httpContent = webclient.sendRequest2(request, 
                                                          headSize,
-                                                         getRequest);
+                                                         isHeadRequest);
     if (USE_STATSSERVER) {
       int statsHeadSize;
       httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);

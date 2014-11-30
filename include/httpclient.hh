@@ -28,10 +28,12 @@ public:
   ~httpclient();
   vector<uint8_t> sendRequest(string queryStr,
                               int &headerSize,
-                              bool getRequest = true);
+                              bool isHeadRequest = false);
   vector<uint8_t> sendRequest2(string request,
                                int &headerSize,
-                               bool getRequest = true);
+                               bool isHeadRequest = false);
+  vector<uint8_t> sendPost(vector<uint8_t> request);
+  
 };
 
 #endif

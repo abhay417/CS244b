@@ -117,7 +117,7 @@ template<> struct xdr_traits<::cacheTransfer>
 
 struct cacheRequest {
   longstring host{};
-  bool getRequest{};
+  bool isHeadRequest{};
   longstring requestUrl{};
   longstring request{};
 };
@@ -127,8 +127,8 @@ template<> struct xdr_traits<::cacheRequest>
                               decltype(::cacheRequest::host),
                               &::cacheRequest::host>,
                     field_ptr<::cacheRequest,
-                              decltype(::cacheRequest::getRequest),
-                              &::cacheRequest::getRequest>,
+                              decltype(::cacheRequest::isHeadRequest),
+                              &::cacheRequest::isHeadRequest>,
                     field_ptr<::cacheRequest,
                               decltype(::cacheRequest::requestUrl),
                               &::cacheRequest::requestUrl>,
@@ -138,14 +138,14 @@ template<> struct xdr_traits<::cacheRequest>
   template<typename Archive> static void
   save(Archive &ar, const ::cacheRequest &obj) {
     archive(ar, obj.host, "host");
-    archive(ar, obj.getRequest, "getRequest");
+    archive(ar, obj.isHeadRequest, "isHeadRequest");
     archive(ar, obj.requestUrl, "requestUrl");
     archive(ar, obj.request, "request");
   }
   template<typename Archive> static void
   load(Archive &ar, ::cacheRequest &obj) {
     archive(ar, obj.host, "host");
-    archive(ar, obj.getRequest, "getRequest");
+    archive(ar, obj.isHeadRequest, "isHeadRequest");
     archive(ar, obj.requestUrl, "requestUrl");
     archive(ar, obj.request, "request");
   }

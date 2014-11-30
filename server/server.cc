@@ -12,6 +12,7 @@
 #include <vector>
 #include <map>
 #include "include/helpers.hh" 
+#include "include/httpclient.hh"
 
 using namespace std;
 using namespace xdr;
@@ -61,10 +62,6 @@ proxyServerLoop(void* MasterServer)
   //Setup master so we can access the _ring
   const api_v1_server* pMaster = (api_v1_server*) MasterServer;
   
-  //XXX: These variable will probably be required to process
-  //     non GET/HEAD requests
-  //char buffer[4096];
-  //vector<uint8_t> request;
   while (true) {
     sockaddr_in clientSockAddr;
     unsigned clientSockSize = sizeof(clientSockAddr);
@@ -76,10 +73,6 @@ proxyServerLoop(void* MasterServer)
       continue;
     }
     
-    //XXX: For now we only handle get and head requests
-    //request.clear();
-    //int totalBytesReceived = 0;
-    
     //Get the headers first
     string header;
     if (!getHttpHeader(clientSocket, header)) {
@@ -87,19 +80,19 @@ proxyServerLoop(void* MasterServer)
       continue;
     }
     
-    //Check if GET or HEAD
-    bool isGetRequest;
+    //Check if GET, HEAD, or POST
+    bool isHeadRequest;
     size_t firstSpaceInd = header.find(' ');
     string rType = header.substr(0, firstSpaceInd);
-    if (rType != "HEAD" && rType != "GET") {
-      cerr << "Not get or head request: " << rType << endl;
+    if (rType != "HEAD" && rType != "GET" && rType != "POST") {
+      cerr << "Not head, get or post request: " << rType << endl;
       close(clientSocket);
       continue;
     }
     if (rType == "HEAD") {
-      isGetRequest = false;
+      isHeadRequest = true;
     } else {
-      isGetRequest = true;
+      isHeadRequest = false;
     }
     
     //Parse the full request URL from the header
@@ -113,38 +106,58 @@ proxyServerLoop(void* MasterServer)
     size_t nextCRLF = header.find("\r\n", hostInd);
     string host = header.substr(hostInd + hostKey.length(),
                   nextCRLF - hostInd - hostKey.length());
+
+    vector<uint8_t> response;
+    if (rType == "POST") {
+      //Copy the header to the request
+      vector<uint8_t> request;
+      request.reserve(header.size());
+      request.insert(request.end(), (uint8_t *)header.c_str(),
+                     ((uint8_t*)header.c_str()) + header.size());
+      
+      if (!getHTTPContent(clientSocket, header, request)) {
+        //Failed to get the HTTP content
+        close(clientSocket);
+        continue;
+      }
+      
+      httpclient originClient(host);
+      int headerSize;
+      response = originClient.sendPost(request);
+    } else {
+      //Get the cache server to contact
+      uint128_t digest;
+      getMD5Digest(requestUrl, &digest);
+      string cacheServer = pMaster->getCacheServer(digest);
+      
+      //Create a cache server client and get the content
+      //XXX:Do we need to delete the csClient?
+      auto fd = tcp_connect(cacheServer.c_str(), UNIQUE_CACHESERVER_PORT);
+      auto csClient = new srpc_client<cache_api_v1>{fd.release()};
+      
+      //Send the request
+      cacheRequest cr;
+      cr.host = host;
+      cr.isHeadRequest = isHeadRequest;
+      cr.requestUrl = requestUrl;
+      cr.request = header;
+      response = *(csClient->getCacheContents2(cr));
+      
+      cout << "Received from cache server: " << std::dec << response.size() << endl;
+    }
     
-    //Get the cache server to contact
-    uint128_t digest;
-    getMD5Digest(requestUrl, &digest);
-    string cacheServer = pMaster->getCacheServer(digest);
-    //cout << "CacheServer: " << cacheServer << endl;
-    
-    //Create a cache server client and get the content
-    auto fd = tcp_connect(cacheServer.c_str(), UNIQUE_CACHESERVER_PORT);
-    auto csClient = new srpc_client<cache_api_v1>{fd.release()};
-    
-    //Send the request
-    cacheRequest cr;
-    cr.host = host;
-    cr.getRequest = isGetRequest;
-    cr.requestUrl = requestUrl;
-    cr.request = header;
-    auto res = csClient->getCacheContents2(cr);
-    cout << "Received from cache server: " << std::dec << res->size() << endl; 
-    
-    //Now we send back the content to the client
+    //Now we send the back the content to the client
     int totalBytesSent = 0;
     do {
-      int n = send(clientSocket, &((*res)[0]) + totalBytesSent,
-                   res->size() - totalBytesSent, 0);
+      int n = send(clientSocket, &(response[0]) + totalBytesSent,
+                   response.size() - totalBytesSent, 0);
       if (n <= 0) {
         cerr << "Error writing to socket" << endl;
         close(clientSocket);
         continue;
       }
       totalBytesSent += n;
-    } while (totalBytesSent < res->size());
+    } while (totalBytesSent < response.size());
     
     //Response sent back to client
     close(clientSocket);
@@ -155,16 +168,11 @@ proxyServerLoop(void* MasterServer)
 
 int main(int argc, const char *argv[])
 {
+    //Master server
     api_v1_server s;
     rpc_tcp_listener rl(tcp_listen(UNIQUE_MASTER_PORT, AF_INET));
 
-    //XXX: We still need to tie together the Proxy server with the
-    //     Master server so the Proxy can query the master to get
-    //     the cache server to be used to handle requests
-    //     Idea 1: Make an RPC call
-    //     Idea 2: Plug in the Proxy code into the Master class
-    //             so it can simply use the "_ring" map
-    //Create a thread for the proxy server
+    //ProxyServer
     pthread_t proxyThread;
     int proxy_res = pthread_create(&proxyThread, NULL,
                                    proxyServerLoop, (void*)&s);

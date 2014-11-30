@@ -86,12 +86,12 @@ httpclient::~httpclient()
 vector<uint8_t>
 httpclient::sendRequest(string queryStr,
                         int &headerSize,
-                        bool getRequest)
+                        bool isHeadRequest)
 {
   vector<uint8_t> response;
   headerSize = 0;
   //string req = "HEAD " + queryStr + " HTTP/1.1\r\nHost: " +
-  string req = getRequest ? "GET " : "HEAD ";
+  string req = isHeadRequest ? "HEAD " : "GET " ;
   req += queryStr + " HTTP/1.1\r\nHost: " +
                      _host + "\r\nAccept: */*\r\n\r\n";
   
@@ -115,7 +115,7 @@ httpclient::sendRequest(string queryStr,
   response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
                   (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
 
-  if (!getRequest) {
+  if (isHeadRequest) {
     //Return the response header for HEAD requests
     cout << "HEAD response complete" << endl;
     return response;
@@ -134,7 +134,7 @@ httpclient::sendRequest(string queryStr,
 vector<uint8_t>
 httpclient::sendRequest2(string request,
                          int &headerSize,
-                         bool getRequest)
+                         bool isHeadRequest)
 {
   vector<uint8_t> response;
   headerSize = 0;
@@ -164,7 +164,7 @@ httpclient::sendRequest2(string request,
   response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
                   (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
 
-  if (!getRequest) {
+  if (isHeadRequest) {
     //Return the response header for HEAD requests
     cout << "HEAD response complete" << endl;
     return response;
@@ -178,6 +178,46 @@ httpclient::sendRequest2(string request,
   
   cout << "GET response complete" << endl;
   return response;
+}
+
+vector<uint8_t>
+httpclient::sendPost(vector<uint8_t> request)
+{
+  vector<uint8_t> response;
+
+  //Send the request
+  int n = 0;
+  int totalBytesSent = 0;
+  do {
+    n = send(_socket, &(request[0]) + totalBytesSent,
+             request.size() - totalBytesSent, 0);
+    if (n <= 0) {
+      cerr << "Error writing to socket" << endl;
+      return response;
+    }
+    totalBytesSent += n;
+  } while (totalBytesSent < request.size());
+ 
+  //Read the header first that is until we encounter a \r\n\r\n
+  string responseHeader;
+  if (!getHttpHeader(_socket, responseHeader)) {
+    return response;
+  }
+
+  //Copy the header to response
+  response.reserve(responseHeader.size());
+  response.insert(response.end(), (uint8_t *)responseHeader.c_str(),
+                  (uint8_t *) (responseHeader.c_str()) + responseHeader.size());
+
+  //Get the content
+  if (!getHTTPContent(_socket, responseHeader,
+                      response)) {
+    return response;
+  }
+  
+  cout << "POST response complete" << endl;
+  return response;
+
 }
 
 

@@ -24,7 +24,7 @@ struct cacheTransfer {
 
 struct cacheRequest {
   longstring host;
-  bool getRequest;
+  bool isHeadRequest;
   longstring requestUrl;
   longstring request;
 };
