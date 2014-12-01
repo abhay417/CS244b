@@ -1,15 +1,13 @@
 
 #include <unistd.h>
 #include <sys/socket.h>
-
 #include <iostream>
 #include <set>
 #include <string>
-
+#include <vector>
 #include <xdrpp/srpc.h>
 #include <xdrpp/rpcbind.hh>
 #include <xdrpp/socket.h>
-
 #include <include/rpcconfig.h>
 #include <include/server.hh>
 #include <include/client.h>
@@ -75,7 +73,7 @@ Client::getCacheServer(const string& url)
   return *ip;
 }
 
-string
+vector<uint8_t>
 Client::getCacheContents(const string& cacheHost,
                          const string& url)
 {
@@ -85,16 +83,17 @@ Client::getCacheContents(const string& cacheHost,
   auto cclient = new srpc_client<cache_api_v1>{fd.release()};
   auto res = cclient->getCacheContents(urlStr);
 
-  string ret;
-  ret.reserve(res->size());
-  //XXX: For now we return a string
-  //     We may be able to use memcpy here
-  for (int i = 0; i < res->size(); i++) {
-    ret += (*res)[i];
-  }
-  cout << "Received data size: " << ret.size() << endl;
+  cout << "Received data size: " << res->size() << endl;
 
   //deleting the client will terminate the connection
   delete cclient;
-  return ret;
+  return *res;
+}
+
+vector<uint8_t>
+Client::getCacheContents2(const std::string& url)
+{
+  string cacheServer = getCacheServer(url);
+  auto res = getCacheContents(cacheServer, url);
+  return res;
 }

@@ -69,7 +69,23 @@ Cmd_CacheContents(int argc, const char *argv[])
     }
 
     try {
-        string ret = client.getCacheContents(argv[1], argv[2]);
+        vector<uint8_t> ret = client.getCacheContents(argv[1], argv[2]);
+        //cout << "Cache return: " << ret << endl;
+    } catch (ClientException &e) {
+        cout << e.what() << endl;
+    }
+}
+
+void
+Cmd_CacheContents2(int argc, const char *argv[])
+{
+    if (argc != 2) {
+        cout << "Usage: cc URL" << endl;
+        return;
+    }
+
+    try {
+        vector<uint8_t> ret = client.getCacheContents2(argv[1]);
         //cout << "Cache return: " << ret << endl;
     } catch (ClientException &e) {
         cout << e.what() << endl;
@@ -104,6 +120,8 @@ DispatchCommand(char *buf)
         Cmd_CacheServer(argc, (const char **)argv);
     } else if (cmd == "cc") {
         Cmd_CacheContents(argc, (const char **)argv);
+    } else if (cmd == "cc2") {
+        Cmd_CacheContents2(argc, (const char **)argv);
     } else if (cmd != "") {
         printf("Unknown command '%s'\n", argv[0]);
     }

@@ -3,6 +3,7 @@
 #define __CLIENT_H__
 
 #include <set>
+#include <vector>
 #include <string>
 
 enum ClientError {
@@ -88,8 +89,14 @@ public:
      *
      * Return Value: IP address of the cache server
      */
-    std::string getCacheContents(const std::string& cacheHost,
-                                 const std::string& url);
+    std::vector<uint8_t> getCacheContents(const std::string& cacheHost,
+                                          const std::string& url);
+    /*
+     * Gets the cache content from the appropriate cache server
+     *
+     * Return Value: Response as a vector of uint8_t
+     */
+    std::vector<uint8_t> getCacheContents2(const std::string& url);
 private:
     xdr::srpc_client<api_v1> *client;
     //xdr::srpc_client<cache_api_v1> *cacheClient;

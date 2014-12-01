@@ -14,6 +14,18 @@
 using namespace std;
 using namespace xdr;
 
+static void
+removeHttpPrefix(string& url)
+{
+  string httpPrefix("http://");
+  if (strcasecmp(url.substr(0, httpPrefix.length()).c_str(),
+                 httpPrefix.c_str()) == 0) {
+    //Prefix matched
+    url = url.substr(httpPrefix.length());
+  }
+}
+
+
 //XXX: Consolidate the common code in the following two functions
 unique_ptr<bytestream>
 cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
@@ -26,11 +38,22 @@ cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
   httpclient statsclient(STATSSERVER_IP, UNIQUE_STATSSERVER_PORT);
   if (!cache.contains(urlDigest)) {
     cout << "Content not in cache so fetching from the origin server" << endl;
+    
+    //Remove http:// prefix if it was passed
+    removeHttpPrefix(url);
+    
     //URL content is not already cached
     //Make an HTTP request to get it, then cache and return it
     size_t firstSlashInd = url.find("/");
-    string host = url.substr(0, firstSlashInd);
-    string querystr = url.substr(firstSlashInd);
+    string host, querystr;
+    if (firstSlashInd == string::npos) {
+      host = url;
+      querystr = "/";
+    } else {
+      host = url.substr(0, firstSlashInd);
+      querystr = url.substr(firstSlashInd);
+    }
+    
     cout << "host: " << host << " querystr: " << querystr << endl;
     httpclient webclient(host);
     int headSize;
