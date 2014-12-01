@@ -44,6 +44,10 @@ getHTTPContent(int socket,
   string contentLenAsStr = header.substr(cLenIndEnd,
                                          nextCRLF - cLenIndEnd);
   int contentLen = atoi(contentLenAsStr.c_str());
+  // IF content length is actually zero, nothing left to read
+  if (contentLen == 0) {
+    return true;
+  }
 
   //Then get the content
   uint8_t buf[4096];
@@ -91,7 +95,6 @@ getHttpHeader(int socket,
     }
     header += buf[0];
   }
-  
   return true;
 }
 
