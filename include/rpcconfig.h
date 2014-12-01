@@ -5,5 +5,5 @@
 #define USE_STATSSERVER          true
 #define UNIQUE_PROXY_PORT        4007
 #define USE_CHASHING             false
-#define DEBUG_MODE               true
+#define DEBUG_MODE               false
 

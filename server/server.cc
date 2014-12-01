@@ -157,7 +157,6 @@ proxyServerLoop(void* MasterServer)
       int bytesToSend = (bytesLeft < MAX_PACKET_SIZE) ? bytesLeft : MAX_PACKET_SIZE;
       int n = send(clientSocket, &(response[0]) + responseSize - bytesLeft,
                    bytesToSend, 0);
-      cout << n << endl;
       if (n <= 0) {
         cerr << "Error writing to socket" << endl;
         close(clientSocket);
