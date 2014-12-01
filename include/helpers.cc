@@ -1,4 +1,5 @@
 #include "helpers.hh"
+#include "rpcconfig.h"
 
 uint128_t
 combineLowHigh(uint64_t low,
@@ -95,6 +96,11 @@ getHttpHeader(int socket,
     }
     header += buf[0];
   }
+
+  if (DEBUG_MODE) {
+    cout << "(getHTTPHeader)Header: " << header << endl;
+  }
+
   return true;
 }
 

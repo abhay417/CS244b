@@ -14,6 +14,8 @@
 #include "include/helpers.hh" 
 #include "include/httpclient.hh"
 
+#define MAX_PACKET_SIZE 32000
+
 using namespace std;
 using namespace xdr;
 
@@ -124,6 +126,8 @@ proxyServerLoop(void* MasterServer)
       httpclient originClient(host);
       int headerSize;
       response = originClient.sendPost(request);
+      
+      cout << "Received content from origin server: " << std::dec << response.size() << endl;
     } else {
       //Get the cache server to contact
       uint128_t digest;
@@ -143,21 +147,24 @@ proxyServerLoop(void* MasterServer)
       cr.request = header;
       response = *(csClient->getCacheContents2(cr));
       
-      cout << "Received from cache server: " << std::dec << response.size() << endl;
+      cout << "Received content from cache server: " << std::dec << response.size() << endl;
     }
     
     //Now we send the back the content to the client
-    int totalBytesSent = 0;
+    int responseSize = response.size();
+    int bytesLeft = responseSize;
     do {
-      int n = send(clientSocket, &(response[0]) + totalBytesSent,
-                   response.size() - totalBytesSent, 0);
+      int bytesToSend = (bytesLeft < MAX_PACKET_SIZE) ? bytesLeft : MAX_PACKET_SIZE;
+      int n = send(clientSocket, &(response[0]) + responseSize - bytesLeft,
+                   bytesToSend, 0);
+      cout << n << endl;
       if (n <= 0) {
         cerr << "Error writing to socket" << endl;
         close(clientSocket);
         continue;
       }
-      totalBytesSent += n;
-    } while (totalBytesSent < response.size());
+      bytesLeft -= n;
+    } while (bytesLeft > 0);
     
     //Response sent back to client
     close(clientSocket);

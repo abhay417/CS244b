@@ -4,5 +4,6 @@
 #define UNIQUE_STATSSERVER_PORT  "4006"
 #define USE_STATSSERVER          true
 #define UNIQUE_PROXY_PORT        4007
-#define USE_CHASHING		 false
+#define USE_CHASHING             false
+#define DEBUG_MODE               true
 
