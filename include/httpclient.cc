@@ -76,9 +76,10 @@ httpclient::httpclient(string host, string port): _socket(0), _initialized(false
 
 httpclient::~httpclient()
 {
-  if (_initialized && _socket) {
+  if (/*_initialized && */_socket) {
     close(_socket);
   }
+  cout << endl;
 }
 
 //XXX: Consolidate common code from the following

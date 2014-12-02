@@ -167,7 +167,7 @@ cache_api_v1_server::newCacheserverAdded(unique_ptr<newCacheServerInfo> arg)
 
   //Transfer the contents
   auto fd = tcp_connect(newServer.c_str(), UNIQUE_CACHESERVER_PORT);
-  auto cclient = new srpc_client<cache_api_v1>{fd.release()};
+  auto cclient = new srpc_client<cache_api_v1>{fd.get()};
   for (int i = 0; i < digestsToTransfer.size(); i++) {
     uint128_t digest = digestsToTransfer[i];
     vector<uint8_t>& cachedData = cache.get(digest);
@@ -188,6 +188,8 @@ cache_api_v1_server::newCacheserverAdded(unique_ptr<newCacheServerInfo> arg)
     cache.erase(digestsToTransfer[i]);
   }
    
+  fd.clear();
+  delete cclient;
 }
 
 void

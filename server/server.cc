@@ -137,7 +137,7 @@ proxyServerLoop(void* MasterServer)
       //Create a cache server client and get the content
       //XXX:Do we need to delete the csClient?
       auto fd = tcp_connect(cacheServer.c_str(), UNIQUE_CACHESERVER_PORT);
-      auto csClient = new srpc_client<cache_api_v1>{fd.release()};
+      auto csClient = new srpc_client<cache_api_v1>{fd.get()};
       
       //Send the request
       cacheRequest cr;
@@ -147,6 +147,8 @@ proxyServerLoop(void* MasterServer)
       cr.request = header;
       response = *(csClient->getCacheContents2(cr));
       
+      delete csClient;
+      fd.clear();
       cout << "Received content from cache server: " << std::dec << response.size() << endl;
     }
     

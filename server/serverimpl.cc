@@ -130,8 +130,10 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
     //Create the client 
     auto fd = tcp_connect(nextServerInRing->second.c_str(),
                           UNIQUE_CACHESERVER_PORT);
-    auto cclient = new srpc_client<cache_api_v1>{fd.release()};
+    auto cclient = new srpc_client<cache_api_v1>{fd.get()};
     cclient->newCacheserverAdded(nsInfo);
+    fd.clear();
+    delete cclient;
   }
 
   cout<<"Printing ring" << endl;

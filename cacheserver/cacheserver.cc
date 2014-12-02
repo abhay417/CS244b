@@ -27,7 +27,7 @@ void* heartbeatLoop(void* val)
 {
   string masterServer((const char*)val);
   auto fd = tcp_connect(masterServer.c_str(), UNIQUE_MASTER_PORT);
-  auto client = new srpc_client<api_v1>{fd.release()};
+  auto client = new srpc_client<api_v1>{fd.get()};
 
   heartbeat hb;
   hb.nodeIP = getOwnAddress();
@@ -37,6 +37,9 @@ void* heartbeatLoop(void* val)
     client->sendHeartbeat(hb);
     sleep(HEARTBEAT_INTERVAL);
   }
+
+  fd.clear();
+  delete client;
 }
 
 int main(int argc, const char *argv[])
