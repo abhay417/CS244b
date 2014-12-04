@@ -102,7 +102,7 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
 
   //Remove all servers that we have not heard back from
   removeTimedOutServers(curr_nsec);
-  
+ /* 
   //Send cacheTransfer message to the other servers
   for (int i = 0; i < nodeDigests.size(); i++) {
     //Create the cacheServerInfo
@@ -135,7 +135,7 @@ api_v1_server::sendHeartbeat(std::unique_ptr<heartbeat> arg)
     fd.clear();
     delete cclient;
   }
-
+*/
   cout<<"Printing ring" << endl;
   for(auto i = _ring.begin(); i != _ring.end(); i++) {
     printUint128(i->first);
