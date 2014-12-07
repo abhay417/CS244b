@@ -28,6 +28,84 @@ getMonotonicNsec() {
 }
 
 bool
+getBytesFromSocket(int socket,
+                   int numBytesToGet,
+                   vector<uint8_t>& content)
+{
+  uint8_t buf[4096];
+  int intialSize = content.size();
+  int totalBytesReceived = 0;
+  do {
+    int n = recv(socket, buf, sizeof(buf), 0);
+    if (n <= 0) {
+      cerr << "(getBytesFromSocket)Failed to recv data. N="
+           << n << endl;
+      return false;
+    }
+    totalBytesReceived += n;
+    content.reserve(totalBytesReceived + intialSize);
+    content.insert(content.end(), buf, buf + n);
+  } while (totalBytesReceived < numBytesToGet);
+  
+  return true;
+}
+
+string
+getBytesUntilFirstCRLF(int socket)
+{
+  string oneLine;
+  char buf;
+  do {
+    int n = recv(socket, &buf, 1, 0);
+    if (n != 1) {
+      cerr << "(getBytesUntilFirstCRLF) Failed to recv data" << endl;
+      return string();
+    }
+    oneLine += buf; 
+  } while (buf != '\n');
+
+  return oneLine;
+}
+
+bool
+getChunkedDataFromSocket(int socket,
+                         vector<uint8_t>& content)
+{
+  cout << "getChunkedData" << endl;
+  int chunkSize;
+  do {
+    //Get content till the first CRLF
+    string chunkSizeLine = getBytesUntilFirstCRLF(socket);
+    if (chunkSizeLine.empty()) {
+      return false;
+    }
+    cout << "chunkSizeLine: " << chunkSizeLine << endl;
+    
+    //Get the value of the chunk size
+    chunkSize = 0;
+    {
+      stringstream s;
+      size_t crInd = chunkSizeLine.find('\r');
+      s << std::hex << chunkSizeLine.substr(0, crInd);
+      s >> chunkSize;
+    }
+    cout << "chunkSize: " << chunkSize << endl;
+    
+    //Add the link to the content and get the chunk
+    content.reserve(content.size() + chunkSizeLine.size());
+    content.insert(content.end(), (uint8_t*) chunkSizeLine.c_str(),
+                   ((uint8_t*) (chunkSizeLine.c_str())) + chunkSizeLine.size());
+    
+    //Get the chunk
+    //+2 for the ending CRLF
+    getBytesFromSocket(socket, chunkSize + 2, content);
+    
+  } while (chunkSize > 0);
+  
+  return true;
+}
+
+bool
 getHTTPContent(int socket,
                const string& header,
                vector<uint8_t>& content)
@@ -37,7 +115,10 @@ getHTTPContent(int socket,
   size_t cLenIndEnd = header.find(cLenStr);
   if (cLenIndEnd == string::npos) {
     //Content length not found
-    //Assuming length of 0
+    //Assuming that the data is encoded as chunks
+    //if (!getChunkedDataFromSocket(socket, content)) {
+    //  return false;
+    //}
     return true;
   }
   cLenIndEnd += cLenStr.length();
@@ -51,20 +132,9 @@ getHTTPContent(int socket,
   }
 
   //Then get the content
-  uint8_t buf[4096];
-  int initSize = content.size();
-  int totalBytesReceived = 0;
-  do {
-    int n = recv(socket, buf, sizeof(buf), 0);
-    if (n <= 0) {
-      cerr << "(getHTTPContent)Failed to recv data. N="
-           << n << endl;
-      return false;
-    }
-    totalBytesReceived += n;
-    content.reserve(totalBytesReceived + initSize);
-    content.insert(content.end(), buf, buf + n);
-  } while (totalBytesReceived < contentLen);
+  if (!getBytesFromSocket(socket, contentLen, content)) {
+    return false;
+  }
   
   return true;
 }
