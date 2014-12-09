@@ -6,11 +6,13 @@
 #include <xdrpp/rpcbind.hh>
 #include <xdrpp/socket.h>
 #include "include/rpcconfig.h"
-
 #include "serverimpl.hh"
 #include <pthread.h>
+#include <semaphore.h>
 #include <vector>
+#include <queue>
 #include <map>
+#include <sstream>
 #include "include/helpers.hh" 
 #include "include/httpclient.hh"
 
@@ -18,6 +20,16 @@
 
 using namespace std;
 using namespace xdr;
+
+//Proxy worker thread classes and defines
+#define NUM_PROXY_WORKERS 4
+struct requestTask {
+  int socket;
+  string header;
+};
+queue<requestTask> requestQueue;
+pthread_mutex_t queueMutex;
+sem_t queueSema;
 
 int
 createBindListenSocket(int port) 
@@ -51,36 +63,37 @@ createBindListenSocket(int port)
   return hSocket;
 }
 
-void*
-proxyServerLoop(void* MasterServer)
+
+void* proxyServerWorkerLoop(void *MasterServer)
 {
-  //First create a socket to listen to proxy requests
-  int hSocket = createBindListenSocket(UNIQUE_PROXY_PORT);
-  if (hSocket == -1) {
-    cerr << "Failed to create socket to listen to the proxy port" << endl;
-    return NULL;
-  }
-  
   //Setup master so we can access the _ring
   const api_v1_server* pMaster = (api_v1_server*) MasterServer;
   
+  
+  bool nameRetrieved = false;
+  string myName;
   while (true) {
-    sockaddr_in clientSockAddr;
-    unsigned clientSockSize = sizeof(clientSockAddr);
-    int clientSocket = accept(hSocket,
-                              reinterpret_cast<sockaddr *>(&clientSockAddr),
-                              &clientSockSize);
-    if (clientSocket == -1) {
-      cerr << "Accept failed." << endl;
-      continue;
+    //Semaphore down
+    sem_wait(&queueSema);
+    
+    //Get self name
+    if (!nameRetrieved) {
+      char buffer[256];
+      pthread_t me = pthread_self();
+      pthread_getname_np(me, buffer, sizeof(buffer));
+      myName = buffer;
+      nameRetrieved = true;
     }
     
-    //Get the headers first
-    string header;
-    if (!getHttpHeader(clientSocket, header)) {
-      close(clientSocket);
-      continue;
-    }
+    
+    pthread_mutex_lock(&queueMutex);
+    //XXX:Is there a better way to get the first element from the queue
+    requestTask currTask = requestQueue.front();
+    requestQueue.pop();
+    pthread_mutex_unlock(&queueMutex);
+    
+    int& clientSocket = currTask.socket;
+    string& header = currTask.header;
     
     //Check if GET, HEAD, or POST
     bool isHeadRequest;
@@ -127,7 +140,8 @@ proxyServerLoop(void* MasterServer)
       int headerSize;
       response = originClient.sendPost(request);
       
-      cout << "Received content from origin server: " << std::dec << response.size() << endl;
+      cout << "(" << myName << ")Received content from origin server: " 
+           << std::dec << response.size() << endl;
     } else {
       //Get the cache server to contact
       uint128_t digest;
@@ -149,7 +163,8 @@ proxyServerLoop(void* MasterServer)
       
       delete csClient;
       fd.clear();
-      cout << "Received content from cache server: " << std::dec << response.size() << endl;
+      cout << "(" << myName << ")Received content from cache server: " 
+           << std::dec << response.size() << endl;
     }
     
     //Now we send the back the content to the client
@@ -170,7 +185,68 @@ proxyServerLoop(void* MasterServer)
     //Response sent back to client
     close(clientSocket);
   }
+}
+
+
+void*
+proxyServerLoop(void* MasterServer)
+{
+  //First create a socket to listen to proxy requests
+  int hSocket = createBindListenSocket(UNIQUE_PROXY_PORT);
+  if (hSocket == -1) {
+    cerr << "Failed to create socket to listen to the proxy port" << endl;
+    return NULL;
+  }
   
+  //Initialize all the synchronization primitives
+  pthread_mutex_init(&queueMutex, NULL);
+  sem_init(&queueSema, 0, 0); //All proxy workers should block here
+  
+  //Start the worker threads
+  pthread_t proxyWorkerThreads[NUM_PROXY_WORKERS];
+  for (int i = 0; i < NUM_PROXY_WORKERS; i++) {
+    int res = pthread_create(&(proxyWorkerThreads[i]), NULL,
+                   proxyServerWorkerLoop, MasterServer);
+    stringstream name;
+    name << "ProxyWorker" << i;
+    pthread_setname_np(proxyWorkerThreads[i], name.str().c_str());
+    cout << "Created proxy worker " << name.str() << "(" << proxyWorkerThreads[i] 
+         << "). Result: " << res << endl;
+  }
+  
+  while (true) {
+    sockaddr_in clientSockAddr;
+    unsigned clientSockSize = sizeof(clientSockAddr);
+    int clientSocket = accept(hSocket,
+                              reinterpret_cast<sockaddr *>(&clientSockAddr),
+                              &clientSockSize);
+    if (clientSocket == -1) {
+      cerr << "Accept failed." << endl;
+      continue;
+    }
+    
+    //Get the headers first
+    string header;
+    if (!getHttpHeader(clientSocket, header)) {
+      close(clientSocket);
+      continue;
+    }
+    
+    //Create a new task and add it to the queue
+    requestTask rTask;
+    rTask.socket = clientSocket;
+    rTask.header = header;
+    pthread_mutex_lock(&queueMutex);
+    requestQueue.push(rTask);
+    pthread_mutex_unlock(&queueMutex);
+    
+    //Signal the semaphore about the new task
+    sem_post(&queueSema); 
+  }
+  
+  //Cleanup
+  sem_destroy(&queueSema);
+  pthread_mutex_destroy(&queueMutex);
   close(hSocket);
 }
 
