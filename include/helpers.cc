@@ -28,15 +28,17 @@ getMonotonicNsec() {
 }
 
 bool
-getBytesFromSocket(int socket,
-                   int numBytesToGet,
+getExactNumBytesFromSocket(int socket,
+                   int totalNumBytesToGet,
                    vector<uint8_t>& content)
 {
-  uint8_t buf[4096];
+  uint8_t buf[8192];
   int intialSize = content.size();
   int totalBytesReceived = 0;
   do {
-    int n = recv(socket, buf, sizeof(buf), 0);
+    int bytesLeft = totalNumBytesToGet - totalBytesReceived;
+    int numBytesToRecv = (bytesLeft > sizeof(buf)) ? sizeof(buf) : bytesLeft;
+    int n = recv(socket, buf, numBytesToRecv, 0);
     if (n <= 0) {
       cerr << "(getBytesFromSocket)Failed to recv data. N="
            << n << endl;
@@ -45,7 +47,7 @@ getBytesFromSocket(int socket,
     totalBytesReceived += n;
     content.reserve(totalBytesReceived + intialSize);
     content.insert(content.end(), buf, buf + n);
-  } while (totalBytesReceived < numBytesToGet);
+  } while (totalBytesReceived < totalNumBytesToGet);
   
   return true;
 }
@@ -71,7 +73,6 @@ bool
 getChunkedDataFromSocket(int socket,
                          vector<uint8_t>& content)
 {
-  cout << "getChunkedData" << endl;
   int chunkSize;
   do {
     //Get content till the first CRLF
@@ -79,7 +80,6 @@ getChunkedDataFromSocket(int socket,
     if (chunkSizeLine.empty()) {
       return false;
     }
-    cout << "chunkSizeLine: " << chunkSizeLine << endl;
     
     //Get the value of the chunk size
     chunkSize = 0;
@@ -89,7 +89,6 @@ getChunkedDataFromSocket(int socket,
       s << std::hex << chunkSizeLine.substr(0, crInd);
       s >> chunkSize;
     }
-    cout << "chunkSize: " << chunkSize << endl;
     
     //Add the link to the content and get the chunk
     content.reserve(content.size() + chunkSizeLine.size());
@@ -98,8 +97,8 @@ getChunkedDataFromSocket(int socket,
     
     //Get the chunk
     //+2 for the ending CRLF
-    getBytesFromSocket(socket, chunkSize + 2, content);
-    
+    getExactNumBytesFromSocket(socket, chunkSize + 2, content);
+
   } while (chunkSize > 0);
   
   return true;
@@ -111,18 +110,42 @@ getHTTPContent(int socket,
                vector<uint8_t>& content)
 {
   //First get the content length from the header
+  size_t nextCRLF = -1;
   string cLenStr("Content-Length:");
   size_t cLenIndEnd = header.find(cLenStr);
   if (cLenIndEnd == string::npos) {
+    cLenIndEnd = header.find("content-length:");
+  }
+  if (cLenIndEnd == string::npos) {
     //Content length not found
-    //Assuming that the data is encoded as chunks
-    //if (!getChunkedDataFromSocket(socket, content)) {
-    //  return false;
-    //}
+    //Check if the data is encoded as chunks
+    string encodingStr("Transfer-Encoding:");
+    size_t encodingInd = header.find(encodingStr);
+    if (encodingInd == string::npos) {
+      encodingInd = header.find("transfer-encoding:");
+    }
+    if (encodingInd == string::npos) {
+      //Response is not encoded so assuming length of 0
+      return true;
+    }
+    
+    encodingInd += encodingStr.length();
+    nextCRLF = header.find("\r\n", encodingInd);
+    string encodeType = header.substr(encodingInd,
+                                        nextCRLF - encodingInd);
+    if (encodeType.find("chunked") == string::npos) {
+      //Not chunked encoding
+      return true;
+    }
+    
+    if (!getChunkedDataFromSocket(socket, content)) {
+      return false;
+    }
+    
     return true;
   }
   cLenIndEnd += cLenStr.length();
-  size_t nextCRLF = header.find("\r\n", cLenIndEnd);
+  nextCRLF = header.find("\r\n", cLenIndEnd);
   string contentLenAsStr = header.substr(cLenIndEnd,
                                          nextCRLF - cLenIndEnd);
   int contentLen = atoi(contentLenAsStr.c_str());
@@ -132,7 +155,7 @@ getHTTPContent(int socket,
   }
 
   //Then get the content
-  if (!getBytesFromSocket(socket, contentLen, content)) {
+  if (!getExactNumBytesFromSocket(socket, contentLen, content)) {
     return false;
   }
   
