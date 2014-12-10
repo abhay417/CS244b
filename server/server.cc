@@ -180,8 +180,7 @@ void* proxyServerWorkerLoop(void *MasterServer)
                    bytesToSend, 0);
       if (n <= 0) {
         cerr << "Error writing to socket" << endl;
-        close(clientSocket);
-        continue;
+        break;
       }
       bytesLeft -= n;
     } while (bytesLeft > 0);
@@ -256,6 +255,9 @@ proxyServerLoop(void* MasterServer)
 
 int main(int argc, const char *argv[])
 {
+    //No SIGPIPE errs
+    signal(SIGPIPE, SIG_IGN);
+
     //Master server
     api_v1_server s;
     rpc_tcp_listener rl(tcp_listen(UNIQUE_MASTER_PORT, AF_INET));
