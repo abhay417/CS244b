@@ -57,7 +57,14 @@ cache_api_v1_server::getCacheContents(unique_ptr<longstring> arg)
     cout << "host: " << host << " querystr: " << querystr << endl;
     httpclient webclient(host);
     int headSize;
-    vector<uint8_t> httpContent = webclient.sendRequest(querystr, headSize);
+    vector<uint8_t> httpContent;
+    try {
+        httpContent = webclient.sendRequest(querystr, headSize);
+    } catch (...) {
+        cerr << "An exception occured" << endl;
+        unique_ptr<bytestream> ret(new bytestream);
+        return ret;
+    }
     if (USE_STATSSERVER) {
       int statsHeadSize;
       statsclient.sendRequest("/statsServer?q=cacheMiss", statsHeadSize);

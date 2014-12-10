@@ -143,6 +143,7 @@ void* proxyServerWorkerLoop(void *MasterServer)
       cout << "(" << myName << ")Received content from origin server: " 
            << std::dec << response.size() << endl;
     } else {
+      try {
       //Get the cache server to contact
       uint128_t digest;
       getMD5Digest(requestUrl, &digest);
@@ -165,6 +166,9 @@ void* proxyServerWorkerLoop(void *MasterServer)
       fd.clear();
       cout << "(" << myName << ")Received content from cache server: " 
            << std::dec << response.size() << endl;
+      } catch (...) {
+        std::cerr << "Error occured trying to get content from cache server" << std::endl;
+      }
     }
     
     //Now we send the back the content to the client
