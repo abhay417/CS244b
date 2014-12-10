@@ -67,6 +67,11 @@ httpclient::httpclient(string host, string port): _socket(0), _initialized(false
 
   //Connect to the server 
   open_socketfd(host, port, AI_V4MAPPED, &connect);
+  struct timeval timeout;
+  timeout.tv_sec = 10;
+  timeout.tv_usec = 0;
+  setsockopt (_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+  setsockopt (_socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
   if (!_initialized) {
     cerr << "Error connecting to server " << host << endl;
     return; 

@@ -10,6 +10,9 @@
 #include "include/helpers.hh"
 
 #define HUNDRED_MB_IN_BYTES 100000000
+#define TWOFIVE_PERCENT 70000000 / 4
+#define ONETWOFIVE_PERCENT 70000000 / 8
+#define SIXSEVENFIVE_PERCENT 70000000 / 16
 
 class lru_cache_iter;
 
